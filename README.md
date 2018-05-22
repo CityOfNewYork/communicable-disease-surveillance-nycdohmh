@@ -1,1 +1,1 @@
-# communicable-disease-surveillance-nycdohmh
+# NYC DOHMH - Bureau of Communicable Diseases
