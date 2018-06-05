@@ -6,4 +6,4 @@
 ### Hosted projects include all SAS code and supporting files, along with project specific `README` files that provide an inventory of project files and offer guidance for those who wish to adopt an analysis for implementation in their own jurisdiction.
 
 ## Hosted projects
-### Detecting Dropoffs in Electronic Laboratory Reporting
+### - Detecting Dropoffs in Electronic Laboratory Reporting
