@@ -1,4 +1,4 @@
-﻿/********************************************************************************************************/
+/********************************************************************************************************/
 /*	PROGRAM NAME: ELR_Dropoff_SaTScan_Analysis_GitHub.sas												*/
 /*	CREATED: 2017																						*/
 /*	UPDATED: May 24, 2018																				*/
@@ -104,8 +104,8 @@ where datepart(createdate) GE (&todaynum-(730+30)) and datepart(createdate) LE &
 /* Keep only production records */
 	processingID= 'P' and
 /* Delete not reportable and susceptablities */
-	disease not in ('NOT REPORTABLE','SUSCEPTIBILITY-CD DISEASE UNKNOWN','WADSWORTH CD DISEASE UNK') and
-/* Exclude Wadsworth, PHL, missing CLIA, and CLIA for testing */
+	disease not in ('NOT REPORTABLE','SUSCEPTIBILITY-CD DISEASE UNKNOWN','CD DISEASE UNK') and
+/* Exclude PHL, missing CLIA, and CLIA for testing */
 	sendingfacilityclia not in(" ", "null","CLIAPHL","TESTCLIA");
 /* Clean disease names to match disease code reference table */
 	if disease in("ANAPLASMOSIS") then disease="ANAPLASMOSIS, HUMAN GRANULOCYTIC";
