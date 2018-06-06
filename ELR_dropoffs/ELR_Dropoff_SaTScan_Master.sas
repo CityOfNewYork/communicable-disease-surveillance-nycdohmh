@@ -31,7 +31,7 @@ libname support "S:\...\SaTScan\SupportingFiles";		/* Permanent SaTScan Datasets
 ods noresults; 
 OPTIONS NOCENTER  nonumber  ls=140 ps=51 nodate orientation=landscape;
 options symbolgen mlogic mprint noxwait minoperator source source2;
-OPTIONS EMAILHOST="app22csmtp" EMAILSYS=SMTP EMAILPORT=25;
+OPTIONS EMAILHOST="xxxxxxxx" EMAILSYS=SMTP EMAILPORT=##;
 
 /*set date macros */
 /* TODAY, YESTERDAY, TWO WEEKS AGO (WITH LAG, TODAY-14 DAYS), ONE YEAR AGO */
@@ -168,7 +168,6 @@ run;
 /* If no signals to report, send email to analysts who maintain program to confirm it ran */
 %if &num_obs = 0 %then %do;
 
-OPTIONS EMAILHOST="app22csmtp" EMAILSYS=SMTP EMAILPORT=25;
    filename mymail
 
 		email from='analyst1@health.nyc.gov'
@@ -187,7 +186,6 @@ quit;
 /* If there are signals to report, email team that follows up on reporting dropoffs and generate output */
 %if &num_obs >= 1 %then %do;
 
-OPTIONS EMAILHOST="xxxxxxxx" EMAILSYS=SMTP EMAILPORT=##;
    filename mymail
 
 		email from="analyst1@health.nyc.gov"
