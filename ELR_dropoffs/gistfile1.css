@@ -1,0 +1,81 @@
+@namespace url(http://www.w3.org/1999/xhtml);
+
+@-moz-document url-prefix("https://github.com/") {
+
+.pl-c{
+  color: #222 !important;
+}
+
+.pl-c1,.pl-mdh,.pl-mm,.pl-mp,.pl-mr,.pl-s1 .pl-v,.pl-s3,.pl-sc,.pl-sv{
+  color: #222 !important;
+}
+
+.pl-e,.pl-en{
+  color: #222 !important;
+}
+
+.pl-s1 .pl-s2,.pl-smi,.pl-smp,.pl-stj,.pl-vo,.pl-vpf{
+  color: #222 !important;
+}
+
+.pl-ent{
+  color: #222 !important;
+}
+
+.pl-k,.pl-s,.pl-st{
+  color: #222 !important;
+}
+
+.pl-pds,.pl-s1,.pl-s1 .pl-pse .pl-s2,.pl-sr,.pl-sr .pl-cce,.pl-sr .pl-sra,.pl-sr .pl-sre,.pl-src{
+  color: #222 !important;
+}
+
+.pl-mo,.pl-v{
+  color: #222 !important;
+}
+
+.pl-id{
+  color: #222 !important;
+}
+
+.pl-ii{
+  color: #222 !important;
+}
+
+.pl-sr .pl-cce{
+  color: #222 !important;
+}
+
+.pl-ml{
+  color: #222 !important;
+}
+
+.pl-mh,.pl-mh .pl-en,.pl-ms{
+  color: #222 !important;
+}
+
+.pl-mq{
+  color: #222 !important;
+}
+
+.pl-mi{
+  color: #222 !important;
+}
+
+.pl-mb{
+  color: #222 !important;
+}
+
+.pl-md,.pl-mdhf{
+  color: #222 !important;
+}
+
+.pl-mdht,.pl-mi1{
+  color: #222 !important;
+}
+
+.pl-mdr{
+  color: #222 !important;
+}
+
+}
