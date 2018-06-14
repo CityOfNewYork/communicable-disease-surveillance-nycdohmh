@@ -6,4 +6,4 @@
 ### Hosted projects include all SAS code and supporting files, along with project-specific `README` files that provide an inventory of project files and offer guidance for those who wish to adapt an analysis for their own jurisdiction.
 
 ## Hosted projects
-### - Detecting Drop-offs in Electronic Laboratory Reporting
+### - [Detecting Drop-offs in Electronic Laboratory Reporting](https://github.com/CityOfNewYork/communicable-disease-surveillance-nycdohmh/tree/master/ELR_dropoffs)
