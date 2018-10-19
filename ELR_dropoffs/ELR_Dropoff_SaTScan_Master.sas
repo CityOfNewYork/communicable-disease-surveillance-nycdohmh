@@ -1,11 +1,11 @@
-﻿/****************************************************************************************************/
-/*	PROGRAM NAME: ELR_Dropoff_SaTScan_Master_GitHub.sas												*/
-/*	CREATED: 2017																					*/
-/*	UPDATED: October 19, 2018																			*/
-/*	PROGRAMMERS: Eric Peterson																		*/
-/*				 Erin Andrews																		*/
+﻿/***************************************************************************************************************/
+/*	PROGRAM NAME: ELR_Dropoff_SaTScan_Master_GitHub.sas							*/
+/*	CREATED: 2017												*/
+/*	UPDATED: October 19, 2018										*/
+/*	PROGRAMMERS: Eric Peterson										*/
+/*		     Erin Andrews										*/
 /*		 PURPOSE: Call ELR SaTScan analysis and associated macros, generate output, send e-mails	*/
-/****************************************************************************************************/
+/****************************************************************************************************************/
  
 /* OPTION BELOW WILL DETECT IF RUNNING IN 9.4 AND CORRECT EXTENDOBSCOUNTER OPTION */
 %macro version;
