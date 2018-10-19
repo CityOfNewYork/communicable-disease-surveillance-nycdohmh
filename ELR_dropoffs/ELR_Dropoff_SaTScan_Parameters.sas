@@ -1,10 +1,10 @@
-﻿/************************************************************************************************/
-/*	PROGRAM NAME: ELR_Dropoff_SaTScan_Parameters_GitHub.sas										*/
-/*	CREATED: 2017																				*/
-/*	UPDATED: May 24, 2018																		*/
-/*	PROGRAMMERS: Eric Peterson																	*/
-/*				 Erin Andrews																	*/
-/*	PURPOSE: Define SaTScan parameter settings for lab- disease- and test type-level analyses	*/
+﻿/***********************************************************************************************/
+/*	PROGRAM NAME: ELR_Dropoff_SaTScan_Parameters_GitHub.sas										                  */
+/*	CREATED: 2017																		                                            */
+/*	UPDATED: October 19, 2018																		                                */
+/*	PROGRAMMERS: Eric Peterson																                                	*/
+/*				       Erin Andrews																	                                  */
+/*	PURPOSE: Define SaTScan parameter settings for lab- disease- and test type-level analyses	  */
 /************************************************************************************************/
 
 /******** Macro with parameters for lab-level SaTScan analysis ********/
@@ -702,7 +702,7 @@
 
 //"[Temporal Window]"
 /";												minimum temporal cluster size (in time aggregation units)"
-/"MinimumTemporalClusterSize=7"
+/"MinimumTemporalClusterSize=&&MINTEMP&i"
 /";												how max temporal size should be interpretted (0=Percentage, 1=Time)"
 /"MaxTemporalSizeInterpretation=1"
 /";												maximum temporal cluster size (<=90%)"
