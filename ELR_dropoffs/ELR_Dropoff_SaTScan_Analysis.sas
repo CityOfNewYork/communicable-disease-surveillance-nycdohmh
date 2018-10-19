@@ -1,10 +1,10 @@
 /********************************************************************************************************/
-/*	PROGRAM NAME: ELR_Dropoff_SaTScan_Analysis_GitHub.sas												*/
-/*	CREATED: 2017																						*/
-/*	UPDATED: May 24, 2018																				*/
-/*	PROGRAMMERS: Eric Peterson																			*/
-/*				 Erin Andrews																			*/
-/*	PURPOSE: Import and format data, run SaTScan analyses, import results, apply suppression rules		*/
+/*	PROGRAM NAME: ELR_Dropoff_SaTScan_Analysis_GitHub.sas						*/
+/*	CREATED: 2017											*/
+/*	UPDATED: October 19, 2018									*/
+/*	PROGRAMMERS: Eric Peterson									*/
+/*				 Erin Andrews								*/
+/*	PURPOSE: Import and format data, run SaTScan analyses, import results, apply suppression rules	*/
 /********************************************************************************************************/
 
 /* Will delete rows added today if rerunning*/
@@ -65,7 +65,10 @@ if test_name in('AST/SGOT','Hep B NAAT/PCR','Hep B core IgM (HBcIGM)','Hep B e a
 		'Hep B surface antigen (HBsAg)','Hep C antibody screen (EIA)','Hep C genotype','Hep C virus NAAT/PCR') then do;
 		if test_name = 'AST/SGOT' then test_code = 'AST_SGOT';
 		else if test_name = 'Hep B NAAT/PCR' then test_code = 'HepB_PCR';
-		else if test_name = 'Hep B core IgM (HBcIGM)' then test_code = 'HepB_core_IGM';
+		else if test_name = 'Hep B core IgM (HBcIGM)' then do;
+			test_code = 'HepB_core_IGM';
+			labdate=datepart(report_date);
+		end;
 		else if test_name = 'Hep B e antigen (HBe antigen)' then test_code = 'HepB_e_Ag';
 		else if test_name = 'Hep B genotype' then test_code = 'HepB_genotype';
 		else if test_name = 'Hep B surface antigen (HBsAg)' then test_code = 'HepB_surface_Ag';
@@ -86,9 +89,8 @@ select a.*,
 		datepart(b.birth_date) as dob format mmddyy10.,
 		labdate-calculated dob as age_days
 from all_labs a left join maven.dd_aow_events b on a.event_id=b.event_id
-where a.lab_clia ^in(select CLIA from hospital_outNYC) and
 /* Keep GBS only if <7 days old */
-	(a.disease_code^="GBS" or (a.disease_code="GBS" and datepart(a.specimen_date)-datepart(b.birth_date)<7));
+where a.disease_code^="GBS" or (a.disease_code="GBS" and datepart(a.specimen_date)-datepart(b.birth_date)<7);
 quit;
 
 /* Keep one record per unique lab/disease/accessionnum */
@@ -104,8 +106,8 @@ where datepart(createdate) GE (&todaynum-(730+30)) and datepart(createdate) LE &
 /* Keep only production records */
 	processingID= 'P' and
 /* Delete not reportable and susceptablities */
-	disease not in ('NOT REPORTABLE','SUSCEPTIBILITY-CD DISEASE UNKNOWN','CD DISEASE UNK') and
-/* Exclude PHL, missing CLIA, and CLIA for testing */
+	disease not in ('NOT REPORTABLE','SUSCEPTIBILITY-CD DISEASE UNKNOWN','WADSWORTH CD DISEASE UNK') and
+/* Exclude NYS and NYC PHL, missing CLIA, and CLIA for testing */
 	sendingfacilityclia not in(" ", "null","CLIAPHL","TESTCLIA");
 /* Clean disease names to match disease code reference table */
 	if disease in("ANAPLASMOSIS") then disease="ANAPLASMOSIS, HUMAN GRANULOCYTIC";
@@ -146,19 +148,6 @@ where datepart(createdate) GE (&todaynum-(730+30)) and datepart(createdate) LE &
 	if disease =: 'SALMONELLA' then disease= 'SALMONELLA';
 	dx_eclrs=compress(upcase(disease));
 /* Lab mergers */
-/* Facility 1 (CLIA1) --> Facility 2 (CLIA2) */
-	if lab_clia="CLIA1" then lab_clia="CLIA2"; 
-/* Facility 3 (CLIA3) --> Facility 4 (CLIA4) for Hep B only */
-	if lab_clia="CLIA3" and disease_code in("HBVC","HBVA") then lab_clia="CLIA4";
-/* Facility 5 (CLIA5) --> Facility 6 (CLIA6) for Lym only */
-	if lab_clia="CLIA5" and disease_code= "LYM" then lab_clia="CLIA6";
-/* Facility 5 (CLIA5) --> Facility 7 (CLIA7) for HCV Genotype and NAAT/PCR testing only */
-	if lab_clia ="CLIA5" and test_name in('Hep C virus NAAT/PCR',
-										   'Hep C genotype') then lab_clia="CLIA7";
-/* Existing facility assigned two new CLIAs (CLIA9 and CLIA10) */
-/* 	merge with old CLIA (CLIA8) until 1 year of baseline data is available - end 13FEB2019 */
-	if lab_clia in("CLIA9","CLIA10") then lab_clia="CLIA8";
-
 /* Facility 1 (CLIA1) with Facility 2 (CLIA2) */
 	if sendingfacilityclia ="CLIA1" then sendingfacilityclia="CLIA2"; 
 /* Facility 3 (CLIA3) --> Facility 4 (CLIA4) for Hep B only */
@@ -185,11 +174,14 @@ select a.*,
 		else datepart(createdate)
 	end as labdate format mmddyy10.
 from eclrs as a left join support.disease_names as b
-on a.disease = b.disease_name
-	where sendingfacilityclia ^in(select CLIA from hospital_outNYC);
+on a.disease = b.disease_name;
 quit;
 
-/* Reassign CLIA in ECLRS data for hep test-specific sendouts using standardized test name in Maven data */
+/* 		Reassign CLIA in ECLRS data for hep test-specific sendouts using standardized test name in Maven data */
+/*		Reports from Facility 11 (CLIA11) are being misassigned to Facility 3 (CLIA3), with CLIA11 entered as the */
+/*			ordering facility (producerfacilityclia) rather than the testing facility (sendingfacilityclia). */
+/*			ordering facility CLIA is only available in the ECLRS database, so these reports must first be identified in */
+/*			ECLRS, then corrected in Maven data */
 proc sql;
 create table eclrs2 as
 select a.*,
@@ -197,8 +189,10 @@ select a.*,
 	case
 /* Facility 6 (CLIA6) with Facility 7 (CLIA7) for HCV Genotype and NAAT/PCR testing only */
 		when put(a.observationresultkey,8.)=b.observation_result_key and
-			a.sendingfacilityclia='33D0690778' and
-			b.test_name in('Hep C virus NAAT/PCR','Hep C genotype') then "31D0696246"
+			a.sendingfacilityclia='CLIA6' and
+			b.test_name in('Hep C virus NAAT/PCR','Hep C genotype') then "CLIA7"
+		when a.sendingfacilityclia="CLIA3" and
+			a.ProducerCliaID="CLIA11" then "CLIA11"
 		else a.sendingfacilityclia
 	end as cleaned_clia
 /* observation result key is the unique ID used to link records in ELR database to Maven */
@@ -216,11 +210,32 @@ proc sort data=eclrs3 nodupkey;
 by sendingfacilityclia disease accessionnum;
 run;
 
+/* Apply fix to Maven data for reports from CLIA11 misassigned to CLIA3 by matching to ECLRS data on */
+/* report level key (observationresultkey) */
+proc sql;
+create table all_labs2a as
+select b.*,
+		case
+			when put(a.observationresultkey,8.)=b.observation_result_key and
+				b.lab_clia="CLIA3" and
+				a.sendingfacilityclia="CLIA11" then "CLIA11"
+			else b.lab_clia
+		end as cleaned_clia
+from all_labs2 b left join eclrs3 a
+	on put(a.observationresultkey,8.)=b.observation_result_key;
+quit;
+
+data all_labs2a;
+set all_labs2a;
+	drop lab_clia;
+	rename cleaned_clia=lab_clia;
+run;
+
 /* Join with most recent eclrs CLIA file to get standardized lab name */
 proc sql;
 create table all_labs3 as
 select a.*, b.sendingfacilitynamestd
-from all_labs2 a left join clia_facilityname b
+from all_labs2a a left join clia_facilityname b
 	on a.lab_clia=b.clia;
 QUIT;
 
@@ -342,7 +357,7 @@ run;
 
 /* Keep signals that meet these conditions:
 If observed = 0 then
-1) p-value <= 0.01, 2) average number of expected cases in the temporal window is >= 1
+1) p-value <= 0.01, 2) average number of expected cases per day in the temporal window is >= 1
 
 If observed ^= 0 then
 1) p-value <= 0.01, 2) average number of expected cases per day in the temporal window is >= 1,
@@ -426,6 +441,37 @@ where a.lab_clia=b.CLIA and a.lab_clia=c.CLIA and
 group by a.lab_clia;
 quit;
 
+/* get the longest gap between reports in prior year */
+proc sql;
+create table lab_dates as
+select distinct a.lab_clia as clia, a.labdate
+from all_labs4 as a, last_report as b, clusterinfo2_dropoff as c
+where a.lab_clia=b.CLIA and a.lab_clia=c.CLIA and
+	a.disease_code not in ('MRSA','FLU','RSV') and
+	((c.observed=0 and a.labdate >= (b.last_report-364)));
+create table lab_dates_lag as
+select a.clia, a.labdate, p.labdate as labdate_lag,
+	a.labdate-p.labdate as labdate_gap
+from (select *, monotonic() as IND from lab_dates) a
+	left join (select *,monotonic() as ind from lab_dates) p
+	on a.clia=p.clia and a.ind=p.ind+1;
+create table lab_reporting_gap as
+select distinct clia, labdate_gap as max_reporting_gap format 8.,
+				strip(put(labdate_lag,mmddyy8.))||"--"||
+				strip(put(labdate,mmddyy8.)) as max_reporting_gap_dates
+	from lab_dates_lag
+	where labdate_gap^=.
+	group by clia
+		having labdate_gap=max(labdate_gap)
+	order by clia, labdate;
+quit;
+
+data lab_reporting_gap_recent;
+set lab_reporting_gap;
+	by clia;
+	if last.clia=1;
+run;
+
 /* merge signal linelist with labs table to get diseases reported 14 days before last report */
 proc sql;
 create table recent_diseases as
@@ -447,7 +493,7 @@ data recent_diseases_final (keep=CLIA report_disease);
 set recent_diseases_wide;
 length report_disease $255.;
 %if &num_lab_signals>0 %then %do;
-report_disease= catx(", ", OF col:);
+report_disease= catx(", ", of col:);
 %end;
 run;
 %mend lab_recent_diseases;
@@ -455,7 +501,7 @@ run;
 %lab_recent_diseases
 
 /* join last report in labs table, # of reports, # of report days, # of reports from concurrent period last year, diseases */
-/*	reported in two weeks prior to reporting dropoff, and last report in ECLRS */
+/*	reported in two weeks prior to reporting dropoff, last report in ECLRS, and longest reporting gap */
 proc sql;
 create table lab_dropoff_output_final as
 select a.*,
@@ -465,6 +511,8 @@ select a.*,
 		e.*,
 		f.*,
 		(&todaynum.-b.last_report) as days_since_report,
+		h.max_reporting_gap,
+		h.max_reporting_gap_dates,
 		case
 		/* Suppress signal if number of reports in past year is 12 or less (complete dropoff)
 			lab reported only 1 or 2 days in two weeks prior to reporting dropoff
@@ -481,6 +529,7 @@ from clusterinfo2_dropoff a
 	left join count_lastyear e on a.CLIA=e.CLIA
 	left join recent_diseases_final f on a.CLIA=f.CLIA
 	left join last_report_eclrs g on a.CLIA=g.CLIA
+	left join lab_reporting_gap_recent h on a.clia=h.clia
 /* Keep if signal is a complete dropoff with: */
 	/*no reports of MRSA, FLU, or RSV in reporting dropoff period */
 where ((a.observed=0 and a.CLIA ^in(select distinct b.lab_clia from last_report a, other_diseases b
@@ -505,6 +554,16 @@ proc sql;
 	on c.disease_code = s.disease_code
 	order by c.disease_code;
 quit;
+
+/*		A buyout and subsequent divestment of a major hepatitis testing lab made reporting volume */
+/*		before and after 01JAN2018 incomparable for hepatitis reports overall. */
+/*		Baseline for hepatitis shortened temporarily to start at divestment date. */
+data diseaseListCurrent;
+set diseaseListCurrent;
+	if today()<"01JAN2019"d then do;
+	if disease_code in("HBVC" "HCVC") then baseline=today()-("01JAN2018"d+lagtime-1);
+	end;
+run;
 
 /* Macro variables of analysis parameters for each iteration of analysis */
 data _NULL_;
@@ -661,7 +720,7 @@ data all_disease_clusters2;
 	Clusterenddate=mdy(input(scan(end_date,2,"/"),2.),input(scan(end_date,3,"/"),2.),input(scan(end_date,1,"/"),4.));
 	format clusterenddate mmddyy10.;
 	NumClusterDays=(clusterenddate-clusterstartdate)+1;
-	runDate="&today."d; format runDate mmddyy8. ;
+	runDate="&today."d; format runDate mmddyy8.;
 	drop start_date end_date;
 run;
 
@@ -748,8 +807,39 @@ where a.lab_clia=b.CLIA and a.disease_code=b.disease_code and
 group by a.lab_clia, a.disease_code;
 quit;
 
+/* getting the longest gap between reports in prior year */
+proc sql;
+create table disease_dates as
+select distinct a.lab_clia as clia, a.disease_code, a.labdate
+from all_labs4 as a, disease_last_report as b, all_disease_clusters3 as c
+where a.lab_clia=b.CLIA and a.disease_code=b.disease_code and
+	a.lab_clia=c.CLIA and a.disease_code=c.disease_code and
+	((c.observed=0 and a.labdate >= (b.last_report-364)));
+create table disease_dates_lag as
+select a.clia, a.disease_code, a.labdate, p.labdate as labdate_lag,
+	a.labdate-p.labdate as labdate_gap
+from (select *, monotonic() as IND from disease_dates) a
+	left join (select *,monotonic() as ind from disease_dates) p
+	on a.clia=p.clia and a.disease_code=p.disease_code and a.ind=p.ind+1;
+create table disease_reporting_gap as
+select distinct clia, disease_code, labdate_gap as max_reporting_gap format 8.,
+				strip(put(labdate_lag,mmddyy8.))||"-"||
+				strip(put(labdate,mmddyy8.)) as max_reporting_gap_dates
+	from disease_dates_lag
+	where labdate_gap^=.
+	group by clia, disease_code
+		having labdate_gap=max(labdate_gap)
+	order by clia, disease_code, labdate;
+quit;
+
+data disease_reporting_gap_recent;
+set disease_reporting_gap;
+	by clia disease_code;
+	if last.clia=1 or last.disease_code=1;
+run;
+
 /* join last report in labs table, # of reports, # of report days, */
-/* # of reports from concurrent period last year and last report in ECLRS */
+/* # of reports from concurrent period last year, last report in ECLRS and  and longest reporting gap */
 proc sql;
 create table disease_dropoff_output_final as
 select distinct a.*,
@@ -758,6 +848,8 @@ select distinct a.*,
 		d.*,
 		e.*,
 		(&todaynum.-b.last_report) as days_since_report,
+		g.max_reporting_gap,
+		g.max_reporting_gap_dates,
 		case
 			/* Suppress signal if number of reports in past year is 12 or less (complete dropoff),
 			or lab reported 1 or 2 times in two weeks prior to dropoff (complete dropoff),
@@ -777,6 +869,7 @@ from all_disease_clusters3 a
 	left join disease_batch_report d on a.CLIA=d.CLIA and a.disease_code=d.disease_code
 	left join disease_count_lastyear e on a.CLIA=e.CLIA and a.disease_code=e.disease_code
 	left join disease_last_report_eclrs f on a.CLIA=f.CLIA and a.disease_code=e.disease_code
+	left join disease_reporting_gap_recent g on a.CLIA=g.CLIA and a.disease_code=g.disease_code
 /* Keep signal if a complete dropoff and:
 	no reports of disease from lab to ECLRS on or after cluster start date */
 	where (a.observed=0 and f.last_report_eclrs<a.clusterstartdate
@@ -798,8 +891,7 @@ proc sql;
 create table hep_labs2 as
 select a.*, b.sendingfacilitynamestd
 from hep_labs as a, clia_facilityname as b
-where a.lab_clia=b.clia
- and a.lab_clia ^in(select CLIA from hospital_outNYC);;
+where a.lab_clia=b.clia;
 QUIT;
 
 /* If no standardized facility name use value in lab_name field */
@@ -817,11 +909,26 @@ run;
 proc sql; 
 	create table testypeListCurrent as
 	select distinct h.test_code,
-		30 as lagtime,
+		case
+			when h.test_code="HepB_core_IGM" then 0
+			else 30
+		end as lagtime,
 		100 as recurrence,
-		28 as maxtemp,
+		case
+			when h.test_code="HepB_core_IGM" then 7
+			else 28
+		end as mintemp,
+		case
+			when h.test_code="HepB_core_IGM" then 28
+			else 56
+		end as maxtemp,
 		999 as montecarlo,
-		365 as baseline
+/*		365 as baseline*/
+	/* temporary */
+		case
+			when today()<"01JAN2019"d then today()-("01JAN2018"d+calculated lagtime-1)
+			else 365
+		end as baseline
 	from hep_labs3 as h
 	where h.disease_code
 	order by test_code;
@@ -834,12 +941,13 @@ data _NULL_;
 	if first.test_code then do;
 		i+1;
 		call symputx ('test_code'||left(put(i,5.)),strip(test_code));
-		call symputx ('lagtime'||left(put(i,2.)),lagtime);
-		call symputx ('recurrence'||left(put(i,2.)),recurrence);
-		call symputx ('endloop' ,left(put(i,3.)));
-		call symputx ('maxTemp'||left(put(i,2.)),maxTemp);	
-		call symputx ('monteCarlo'||left(put(i,2.)),monteCarlo);
-		call symputx ('Baseline'||left(put(i,2.)),baseline);
+		call symputx ('lagtime'||left(put(i,5.)),lagtime);
+		call symputx ('recurrence'||left(put(i,5.)),recurrence);
+		call symputx ('endloop' ,left(put(i,5.)));
+		call symputx ('minTemp'||left(put(i,5.)),minTemp);
+		call symputx ('maxTemp'||left(put(i,5.)),maxTemp);	
+		call symputx ('monteCarlo'||left(put(i,5.)),monteCarlo);
+		call symputx ('Baseline'||left(put(i,5.)),baseline);
 	end;
 run;
 
@@ -983,7 +1091,6 @@ cluster=compress(cluster);
 	/* Keep test-type clusters that meet the following conditions:
 		If observed = 0 then
 		1) p-value <= 0.01
-
 		If observed ^= 0 then
 		1) p-value <= 0.01, 2) Observed over Expected ratio <= 0.1 */
 	if (observed=0 and p_value <= 0.01)
@@ -1029,7 +1136,7 @@ create table testtype_batch_report as
 select distinct a.lab_clia as clia,
 				b.test_code,
 		count(distinct a.labdate) as batch
-from all_labs4 as a, testtype_last_report as b
+from hep_labs3 as a, testtype_last_report as b
 where a.lab_clia=b.CLIA and
 		(b.last_report- a.labdate)>= 0 and (b.last_report- a.labdate) <14
 group by b.clia, b.test_code;
@@ -1047,6 +1154,37 @@ where a.lab_clia=b.CLIA and a.test_code=b.test_code and
 group by a.lab_clia, a.test_code;
 quit;
 
+/* getting the longest gap between reports in prior year */
+proc sql;
+create table testtype_dates as
+select distinct a.lab_clia as clia, a.test_code, a.labdate
+from hep_labs3 as a, testtype_last_report as b, all_testtype_clusters2 as c
+where a.lab_clia=b.CLIA and a.test_code=b.test_code and
+	a.lab_clia=c.CLIA and a.test_code=c.test_code and
+	((c.observed=0 and a.labdate >= (b.last_report-364)));
+create table testtype_dates_lag as
+select a.clia, a.test_code, a.labdate, p.labdate as labdate_lag,
+	a.labdate-p.labdate as labdate_gap
+from (select *, monotonic() as IND from testtype_dates) a
+	left join (select *,monotonic() as ind from testtype_dates) p
+	on a.clia=p.clia and a.test_code=p.test_code and a.ind=p.ind+1;
+create table testtype_reporting_gap as
+select distinct clia, test_code, labdate_gap as max_reporting_gap format 8.,
+				strip(put(labdate_lag,mmddyy8.))||"-"||
+				strip(put(labdate,mmddyy8.)) as max_reporting_gap_dates
+	from testtype_dates_lag
+	where labdate_gap^=.
+	group by clia, test_code
+		having labdate_gap=max(labdate_gap)
+	order by clia, test_code, labdate;
+quit;
+
+data testtype_reporting_gap_recent;
+set testtype_reporting_gap;
+	by clia test_code;
+	if last.clia=1 or last.test_code=1;
+run;
+
 /* join last report in labs table, # of reports, # of report days, */
 /* # of reports from concurrent period last year */
 proc sql;
@@ -1057,6 +1195,8 @@ select a.*,
 		d.*,
 		e.*,
 		(&todaynum.-b.last_report) as days_since_report,
+		f.max_reporting_gap,
+		f.max_reporting_gap_dates,
 		case
 			/* Suppress signal if number of reports in past year is 12 or less (complete dropoff),
 			or lab reported 1 or 2 times in two weeks prior to dropoff (complete dropoff),
@@ -1072,6 +1212,7 @@ from all_testtype_clusters2 a
 	left join testtype_num_reports c on a.CLIA=c.CLIA and a.test_code=c.test_code
 	left join testtype_batch_report d on a.CLIA=d.CLIA and a.test_code=d.test_code
 	left join testtype_count_lastyear e on a.CLIA=e.CLIA and a.test_code=e.test_code
+	left join testtype_reporting_gap_recent f on a.CLIA=f.CLIA and a.test_code=f.test_code
 /* Keep signal if a complete dropoff and no reports of disease from lab in lag period */
 where (a.observed=0 and a.CLIA ^in(select distinct b.lab_clia from testtype_last_report a, hep_labs3 b
 									where a.clia=b.lab_clia and a.test_code=b.test_code
@@ -1136,4 +1277,3 @@ quit;
 /* Append cluster details to clusterhistory file */
 proc append base=support.Clusterhistory_dropoff_all data=all_clusters_final_new ;run;
 proc sort data= support.Clusterhistory_dropoff_all; by rundate; run;
-
