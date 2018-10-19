@@ -1,7 +1,7 @@
 ﻿/****************************************************************************************************/
 /*	PROGRAM NAME: ELR_Dropoff_SaTScan_Master_GitHub.sas												*/
 /*	CREATED: 2017																					*/
-/*	UPDATED: May 24, 2018																			*/
+/*	UPDATED: October 19, 2018																			*/
 /*	PROGRAMMERS: Eric Peterson																		*/
 /*				 Erin Andrews																		*/
 /*		 PURPOSE: Call ELR SaTScan analysis and associated macros, generate output, send e-mails	*/
@@ -20,7 +20,7 @@ libname maven odbc database=MavenBCD_RPT owner=dbo;		/* Maven BI Tables */
 libname eclrs odbc database=ECLRS owner=dbo;			/* ECLRS BI tables */																	/* Analyst Tools Folder */
 libname support "S:\...\SaTScan\SupportingFiles";		/* Permanent SaTScan Datasets */
 
-/* Set filepaths - SATSCAN location is used when calling batch files and must on local drive to run */
+/* Set filepaths */
 %LET SATSCAN	=C:\SaTScan94;
 %LET HOME		=S:\...\SaTScan;
 %LET ARCHIVE	=S:\...\SaTScan\Archive;
@@ -31,7 +31,36 @@ libname support "S:\...\SaTScan\SupportingFiles";		/* Permanent SaTScan Datasets
 ods noresults; 
 OPTIONS NOCENTER  nonumber  ls=140 ps=51 nodate orientation=landscape;
 options symbolgen mlogic mprint noxwait minoperator source source2;
-OPTIONS EMAILHOST="xxxxxxxx" EMAILSYS=SMTP EMAILPORT=##;
+OPTIONS EMAILHOST="app22csmtp" EMAILSYS=SMTP EMAILPORT=25;
+
+/* A macro to retrieve subfolder names from the archive folder */
+%macro get_filenames(location);
+    filename _dir_ "%bquote(&location.)";
+    data filenames(keep=fname);
+      handle=dopen( '_dir_' );
+      if handle > 0 then do;
+        count=dnum(handle);
+        do i=1 to count;
+          fname=subpad(dread(handle,i),1,50);/* extract first fifty letters */
+          output filenames;
+        end;
+      end;
+      rc=dclose(handle);
+    run;
+    filename _dir_ clear;
+    %mend;
+
+%get_filenames("&ARCHIVE.");
+
+/* determine the last run date by evaluating subfolders in archive folder and selecting max in date9 format */ 
+proc sql;
+create table filenames_dates as
+select *,
+	input(fname,date9.) as rundate format date9.
+from filenames;
+select max(rundate) into :lastrun from filenames_dates
+where rundate^=.;
+quit;
 
 /*set date macros */
 /* TODAY, YESTERDAY, TWO WEEKS AGO (WITH LAG, TODAY-14 DAYS), ONE YEAR AGO */
@@ -40,7 +69,7 @@ data _null_;
 	call symput('TODAY',put(today(),date9.));
 	call symput('TODAYNUM',today());
 	call symput('LASTYEAR',put(today()-365,date9.));
-	call symput('LASTWEEK',put(today()-7,date9.));
+	call symput('LASTWEEK',put(&lastrun,date9.));
 run;
 
 %put &YTDAY.;
@@ -48,14 +77,6 @@ run;
 %put &TODAYNUM.;
 %put &LASTYEAR.;
 %put &LASTWEEK.;
-
-/* Select list of hospitals with zipcode outside NYC - these signals will be removed from output */
-proc sql;
-create table hospital_outNYC as 
-select clia
-from support.facility_addresses
-where zip not in (select zcta5 from support.nyczip2010)and facility_type ="Hospital";
-quit;
 
 /* Format facility name and save to match on CLIA as standardized facility name */
 data clia_facilityname;
@@ -168,6 +189,7 @@ run;
 /* If no signals to report, send email to analysts who maintain program to confirm it ran */
 %if &num_obs = 0 %then %do;
 
+OPTIONS EMAILHOST="app22csmtp" EMAILSYS=SMTP EMAILPORT=25;
    filename mymail
 
 		email from='analyst1@health.nyc.gov'
@@ -186,6 +208,7 @@ quit;
 /* If there are signals to report, email team that follows up on reporting dropoffs and generate output */
 %if &num_obs >= 1 %then %do;
 
+OPTIONS EMAILHOST="xxxxxxxx" EMAILSYS=SMTP EMAILPORT=##;
    filename mymail
 
 		email from="analyst1@health.nyc.gov"
@@ -193,9 +216,7 @@ quit;
 				'analyst2@health.nyc.gov'
 				'analyst3@health.nyc.gov'
 				'analyst4@health.nyc.gov'
-				'analyst5@health.nyc.gov'
-				'analyst6@health.nyc.gov'
-				'analyst7@health.nyc.gov')
+				'analyst5@health.nyc.gov')
 		subject=" ELR: SaTScan Detected Drop-offs";
 data _null_;
 
@@ -217,15 +238,16 @@ ods escapechar='^';
 
 title; footnote;
 
-footnote1 font=Arial color=black h=0.8 "All analyses are performed using Maven data, and exclude all reports from NYS and NYC PHLs, and hospital labs outside NYC. Lab-level analyses exclude reports of MRSA, RSV & FLU";
+footnote1 font=Arial color=black h=0.8 "All analyses are performed using Maven data, and exclude all reports from NYS and NYC PHLs. Lab-level analyses exclude reports of MRSA, RSV & FLU";
 footnote2 font=Arial color=black h=0.8 "Lab-level analyses use a study period of 365 days with no lag and min and max temporal windows of 3 and 14 days, respectively.";
 footnote3 font=Arial color=black h=0.8 "Disease-level analyses use a study period of 365 days with no lag and min/max temporal windows of 7/28 and 28/56 days for major and minor diseases, respectively.";
-footnote4 font=Arial color=black h=0.8 "Hepatitis and test type-level analyses use a study period of 365 days with a 30 day lag and min and max temporal windows of 7 and 28 days.";
-footnote5 font=Arial color=black h=0.8 "All signals included in output meet or exceed recurrence interval threshold of 100 and have >=5 reports for concurrent period in previous year. Inclusion criteria specific to signal type are as follows:";
-footnote6 font=Arial color=black h=0.8 "Lab: >=1 expected report per day, no indication of batch reporting, >=13 reports in previous year*, no reports of MRSA, FLU, or RSV in dropoff period*, no reports on day of analysis*, observed/expected<=0.1**, expected>=50**";
-footnote7 font=Arial color=black h=0.8 "Disease: signal disease is in-season, >=13 reports in previous year*, no complete lab dropoff in same lab*, no indication of batch reporting*, no reports of signal disease on day of analysis*, observed/expected<=0.1*";
-footnote8 font=Arial color=black h=0.8 "Hepatitis/test type: >=13 reports in previous year*, no complete hepatitis B/C dropoff in same lab*, no indication of batch reporting*, no reports of signal test types on day of analysis*, observed/expected<=0.1**";
-footnote9 font=Arial color=black h=0.8 "*Complete drop-offs only       **Partial drop-offs only";
+footnote4 font=Arial color=black h=0.8 "Hepatitis and test type-level analyses (except Hepatitis B core IgM) use a study period of 365 days with a 30 day lag and min and max temporal windows of 28 and 56 days.";
+footnote5 font=Arial color=black h=0.8 "Hepatitis B core IgM analyses use a study period of 365 days with no lag and min and max temporal windows of 7 and 28 days";
+footnote6 font=Arial color=black h=0.8 "All signals included in output meet or exceed recurrence interval threshold of 100 and have >=5 reports for concurrent period in previous year. Inclusion criteria specific to signal type are as follows:";
+footnote7 font=Arial color=black h=0.8 "Lab: >=1 expected report per day, no indication of batch reporting, >=13 reports in previous year*, no reports of MRSA, FLU, or RSV in dropoff period*, no reports on day of analysis*, observed/expected<=0.1**, expected>=50**";
+footnote8 font=Arial color=black h=0.8 "Disease: signal disease is in-season, >=13 reports in previous year*, no complete lab dropoff in same lab*, no indication of batch reporting*, no reports of signal disease on day of analysis*, observed/expected<=0.1*";
+footnote9 font=Arial color=black h=0.8 "Hepatitis/test type: >=13 reports in previous year*, no complete hepatitis B/C dropoff in same lab*, no indication of batch reporting*, no reports of signal test types on day of analysis*, observed/expected<=0.1**";
+footnote10 font=Arial color=black h=0.8 "*Complete drop-offs only       **Partial drop-offs only";
 
 %if &num_obs_complete>0 %then %do;
 proc sort data=complete;
@@ -234,8 +256,8 @@ run;
 
 ods rtf text = "^S={font_face='Arial' font_weight=bold } ^{style [textdecoration=underline fontsize=12pt just=l]Complete drop-offs in reporting}";
 proc report data=complete nowd;
-	column signal detail CLIA sendingfacilitynamestd  new_dropoff last_report days_since_report lastyear_reports
-		report_disease recurr_int expected;
+	column signal detail CLIA sendingfacilitynamestd new_dropoff last_report days_since_report max_reporting_gap
+		 max_reporting_gap_dates lastyear_reports report_disease recurr_int expected;
 	define signal / 'Signal type';
 	define detail / 'Detail';
 	define CLIA / 'CLIA';
@@ -243,6 +265,8 @@ proc report data=complete nowd;
 	define new_dropoff / 'New';
 	define last_report /'Date of last report';
 	define days_since_report / '# of days since last report';
+	define max_reporting_gap / 'longest reporting gap in previous year (days)' width=3;
+	define max_reporting_gap_dates / 'dates of longest reporting gap in previous year' width=6;
 	define lastyear_reports /'# of reports over same interval last year';
 	define recurr_int / 'Recurrence interval (weeks)';
 	define report_disease/'Diseases reported 2 weeks prior to last report (lab only)';
@@ -282,4 +306,3 @@ ods rtf close;
 
 proc printto;
 
-	
