@@ -1,6 +1,6 @@
 # Detecting Dropoffs in Electronic Laboratory Reporting
 ## Project File Inventory
-### `ELR_Dropoff_SaTScan_Master.sas` - Assigns folder and library locations, calls `ELR_Dropoff_SaTScan_Parameters.sas` to set parameters and `ELR_Dropoff_SaTScan_Analysis.sas` to run analyses, generates output, sends e-mails
+### `ELR_Dropoff_SaTScan_Master.sas` - Assigns folder and library locations, calls `ELR_Dropoff_SaTScan_Parameters.sas` to set parameters and `ELR_Dropoff_SaTScan_Analysis.sas` to run analyses, generate output, send e-mails
 ### `ELR_Dropoff_SaTScan_Analysis.sas` - Imports and formats data, runs SaTScan analyses, imports results, applies suppression rules to identified drop-off signals
 ### `ELR_Dropoff_SaTScan_Parameters.sas` - Sets SaTScan parameter settings to detect lab-specific clusters of low reporting overall, for specific diseases, and for specific test types
 ### `disease_parameters.xlsx` - Catalog of parameter settings used in analyses to detect reporting drop-offs in specific diseases that is easily modified by user
