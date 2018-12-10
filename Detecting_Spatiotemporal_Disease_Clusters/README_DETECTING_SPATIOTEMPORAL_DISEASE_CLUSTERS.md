@@ -2,13 +2,13 @@
 
 ## Project File Inventory
 
-### `SaTScan94Master.sas` – Assigns folder and library locations, calls SaTScan94Macros_GitHub.sas to set parameters and load macros, calls SaTScan94Analysis_GitHub.sas to run analyses, generates output, sends e-mails
+### `SaTScan94Master.sas` – Assigns folder and library locations, calls `SaTScan94Macros.sas` to set parameters and load macros, calls `SaTScan94Analysis.sas` to run analyses, generates output, sends e-mails
 
 ### `SaTScan94Analysis.sas` – Imports and formats data, runs SaTScan analyses, imports results, generates output if cluster reporting criteria are met
 
 ### `SaTScan94Macros.sas` – loads macros and SaTScan parameters template
 
-### `Diseaselist.sas7bdat` – SAS dataset of values in diseaselist.xlsx
+### `Diseaselist.sas7bdat` – SAS dataset of values in `diseaselist.xlsx`
 
 ### `Reviewers.sas7bdat` – SAS dataset of disease-specific reviewer/investigator email distribution lists
 
@@ -20,7 +20,7 @@
 
 ### `Previously_geocoded.sas7bdat` – dataset of events with a prior address that geocoded but current primary address does not geocode, updated with each run for output and manual review and correction in source data
 
-### `Update_diseaselist_supporting_file.sas` – updates diseaselist.sas7bdat with values from diseaselist.xlsx
+### `Update_diseaselist_supporting_file.sas` – updates `diseaselist.sas7bdat` with values from `diseaselist.xlsx`
 
 ### `Update_reviewers_table.sas` – use to modify disease-specific distribution lists for signals
 
