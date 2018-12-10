@@ -271,7 +271,7 @@ data _null_;
 file mymail;
 put "New SaTScan94 signal for &&disease&i (&&agegroupprint&i age group, &&maxtemp&i day maximum temporal window) on &today"//
 	"SaTScan cluster information is here:"/
-	"&ARCHIVE.&today\"//
+	"&ARCHIVETODAY."//
 	"If you have any questions, please ask an analyst."/;
 run;
 quit;
@@ -319,7 +319,7 @@ data _null_;
 file mymail;
 put "&&newcases&i cases of &&disease&i (&&agegroupprint&i age group, &&maxtemp&i day maximum temporal window) added to ongoing SaTScan94 signal on &today."//
 	"SaTScan cluster information is here:"/
-	"&ARCHIVE.&today\"//
+	"&ARCHIVETODAY."//
 	"If you have any questions, please ask an analyst."/;
 run;
 quit;
