@@ -74,10 +74,10 @@ run;
 */
 
 /* Read in file with macros needed for the analysis */
-%include "&SATSCAN.Satscan94Macros_GitHub.sas";
+%include "&SATSCAN.Satscan94Macros.sas";
 
 /* Run analysis code */
-%include "&SATSCAN.Satscan94Analysis_GitHub.sas";
+%include "&SATSCAN.Satscan94Analysis.sas";
 
 /*After analyses have run, check for events added to satscan linelist today */
 proc sql; create table NewEvent as
