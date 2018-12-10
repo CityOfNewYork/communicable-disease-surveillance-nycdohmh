@@ -1,5 +1,5 @@
 /************************************************************************************************/
-/*	PROGRAM NAME: Satscan94Analysis_GitHub									 					*/
+/*	PROGRAM NAME: Satscan94Analysis									 					*/
 /*	DATE CREATED: 2017																			*/
 /*	LAST UPDATED: 12/4/2018																		*/
 /*	 PROGRAMMERS: Deborah Kapell                                         						*/
