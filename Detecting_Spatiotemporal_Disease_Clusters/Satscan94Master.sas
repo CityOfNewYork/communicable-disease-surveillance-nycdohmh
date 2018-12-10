@@ -1,5 +1,5 @@
 /********************************************************************************************/
-/*	PROGRAM NAME: SaTScan94Master_GitHub.sas												*/
+/*	PROGRAM NAME: SaTScan94Master.sas												*/
 /*	DATE CREATED: 2015																		*/
 /*	LAST UPDATED: 12/4/2018																	*/
 /*	PROGRAMMERS: Eric Peterson																*/
@@ -34,7 +34,7 @@ libname maven odbc database=XXXXXXXX owner=dbo;		/* Establish connection to dise
 libname support "&SUPPORT.";		/* Permanent SaTScan Datasets, coordinate files, shapefiles, etc. */
 
 /* SAS output window options */
-OPTIONS EMAILHOST="app22csmtp" EMAILSYS=SMTP EMAILPORT=25;
+OPTIONS EMAILHOST="XXXXXXX" EMAILSYS=XXXX EMAILPORT=XX;
 OPTIONS NOCENTER  nonumber  ls=140 ps=51 nodate;
 options symbolgen mlogic mprint minoperator source source2 orientation=landscape;
 
@@ -173,7 +173,7 @@ emailsys=SMTP;
 data _null_;
 file mymail;
 put 'All quiet.'/
-	'FYI, the cluster history is here: \\nasprgshare220\share\DIS\BCD\COMDISshared\Analyst_of_the_week\Maven\SaTScan\SupportingFiles'/;
+	"FYI, the cluster history is here: &SUPPORT."/;
 run;
 quit;
 %mend noClusters;
@@ -271,7 +271,7 @@ data _null_;
 file mymail;
 put "New SaTScan94 signal for &&disease&i (&&agegroupprint&i age group, &&maxtemp&i day maximum temporal window) on &today"//
 	"SaTScan cluster information is here:"/
-	"\\nasprgshare220\share\DIS\BCD\COMDISshared\Analyst_of_the_week\Maven\SatScan\archive\&today\"//
+	"&ARCHIVE.&today\"//
 	"If you have any questions, please ask an analyst."/;
 run;
 quit;
@@ -319,7 +319,7 @@ data _null_;
 file mymail;
 put "&&newcases&i cases of &&disease&i (&&agegroupprint&i age group, &&maxtemp&i day maximum temporal window) added to ongoing SaTScan94 signal on &today."//
 	"SaTScan cluster information is here:"/
-	"\\nasprgshare220\share\DIS\BCD\COMDISshared\Analyst_of_the_week\Maven\SatScan\archive\&today\"//
+	"&ARCHIVE.&today\"//
 	"If you have any questions, please ask an analyst."/;
 run;
 quit;
