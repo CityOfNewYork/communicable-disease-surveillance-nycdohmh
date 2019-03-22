@@ -2,13 +2,13 @@
 
 ## Project File Inventory
 
-### `BCD003_SaTScan94Master.sas` – Assigns folder and library locations, calls `SaTScan94Macros.sas` to set parameters and load macros, calls `SaTScan94Analysis.sas` to run analyses, generates output, sends e-mails
+### `BCD003_SaTScan94Master.sas` – Assigns folder and library locations, calls `BCD003_SaTScan94Macros.sas` to set parameters and load macros, calls `BCD003_SaTScan94Analysis.sas` to run analyses, generates output, sends e-mails
 
 ### `BCD003_SaTScan94Analysis.sas` – Imports and formats data, runs SaTScan analyses, imports results, generates output if cluster reporting criteria are met
 
 ### `BCD003_SaTScan94Macros.sas` – loads macros and SaTScan parameters template
 
-### `BCD003_Diseaselist.sas7bdat` – SAS dataset of values in `diseaselist.xlsx`
+### `BCD003_Diseaselist.sas7bdat` – SAS dataset of values in `BCD003_diseaselist.xlsx`
 
 ### `BCD003_Reviewers.sas7bdat` – SAS dataset of disease-specific reviewer/investigator email distribution lists
 
@@ -20,7 +20,7 @@
 
 ### `BCD003_Previously_geocoded.sas7bdat` – dataset of events with a prior address that geocoded but current primary address does not geocode, updated with each run for output and manual review and correction in source data
 
-### `BCD003_Update_diseaselist_supporting_file.sas` – updates `diseaselist.sas7bdat` with values from `diseaselist.xlsx`
+### `BCD003_Update_diseaselist_supporting_file.sas` – updates `BCD003_diseaselist.sas7bdat` with values from `BCD003_diseaselist.xlsx`
 
 ### `BCD003_Update_reviewers_table.sas` – use to modify disease-specific distribution lists for signals
 
