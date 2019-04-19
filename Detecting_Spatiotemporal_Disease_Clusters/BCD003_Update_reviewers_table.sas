@@ -3,13 +3,13 @@
 libname support "&SUPPORT.";
 
 /* Make backup just in case */
-data support.reviewersbackup;
-set support.reviewers;
+data support.BCD003_reviewersbackup;
+set support.BCD003_reviewers;
 run;
 
 /* Make temporary dataset of reviewer data  */
 data reviewers;
-set support.reviewers;
+set support.BCD003_reviewers;
 run;
 
 
@@ -31,7 +31,7 @@ proc print data=reviewers_check;
 run;
 
 /* Overwrite permanent dataset */
-data support.reviewers;
+data support.BCD003_reviewers;
 set reviewers_check;
 run;
 

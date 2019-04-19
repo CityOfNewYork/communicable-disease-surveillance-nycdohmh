@@ -419,8 +419,8 @@ proc sql;
 quit;
 
 /* Append saved cluster details to clusterhistory file */
-proc append base=support.Clusterhistory_94 data=ClusterHistory;run;
-proc sort data=support.Clusterhistory_94 out=support.Clusterhistory_94 nodupkey ; by disease_code agegroup maxtemp rundate;run;
+proc append base=support.BCD003_Clusterhistory_94 data=ClusterHistory;run;
+proc sort data=support.BCD003_Clusterhistory_94 out=support.BCD003_Clusterhistory_94 nodupkey ; by disease_code agegroup maxtemp rundate;run;
 
 /* join all unique x, y, and tract info on event id */
 proc sql;
@@ -493,7 +493,7 @@ run;
 %macro CHOROPLETH_setup;
 %macro dummy; %mend dummy;
 /* read in NYC census tracts from shapefile */
-proc mapImport DATAFILE="&SUPPORT.census_tract_SF1SF32K_OEM_2010.shp"  
+proc mapImport DATAFILE="&SUPPORT.BCD003_Detecting_Spatiotemporal_Disease_Clusters\BCD003_census_tract_SF1SF32K_OEM_2010.shp"  
 	out=CityCensusTracts;
 run;
 data map_tract; set CityCensusTracts (keep=x y segment acres borocode nhoodcode puma shape_area shape_len sq_miles tract); run;
@@ -643,7 +643,7 @@ set linelist2_wide;
 	drop col:;
 run;
 
-proc sort data=support.clusterhistory_94;
+proc sort data=support.BCD003_clusterhistory_94;
 	by disease_code agegroup maxtemp rundate cluster;
 run;
 
@@ -652,8 +652,8 @@ proc sort data=linelist2_catx;
 run;
 
 /* Add list of event IDs to clusterhistory file */
-data support.clusterhistory_94;
-merge support.clusterhistory_94 linelist2_catx;
+data support.BCD003_clusterhistory_94;
+merge support.BCD003_clusterhistory_94 linelist2_catx;
 	by disease_code agegroup maxtemp rundate cluster;
 run;
 
@@ -678,9 +678,9 @@ quit;
 /* existing_&&disease_code&i.._&&maxtemp&i.._&&agegroup&i..: Cluster events already in historical satscan linelist */
 /*		Used to define a signal as new or ongoing */
 proc sort data=linelist2;by event_id disease_code maxtemp agegroup;run;
-proc sort data=support.satscanlinelist_94;by event_id disease_code maxtemp agegroup;run;
+proc sort data=support.BCD003_satscanlinelist_94;by event_id disease_code maxtemp agegroup;run;
 data linelist2 existing_&&disease_code&i.._&&maxtemp&i.._&&agegroup&i..;
-	merge linelist2 (in=a) support.satscanlinelist_94 (in=b);
+	merge linelist2 (in=a) support.BCD003_satscanlinelist_94 (in=b);
 	by event_id;
 	if a;
 	if a & ~b then New = "*";
@@ -901,9 +901,9 @@ run;
 
 /* Add confirmed, probable, and suspect count to archived cluster history dataset */
 proc sort data = clusterhistory; by disease_code agegroup maxtemp rundate cluster; run;
-proc sort data = support.clusterhistory_94; by disease_code agegroup maxtemp rundate cluster; run;
-data support.clusterhistory_94;
-	merge support.clusterhistory_94 (in=a) clusterhistory (in=b);
+proc sort data = support.BCD003_clusterhistory_94; by disease_code agegroup maxtemp rundate cluster; run;
+data support.BCD003_clusterhistory_94;
+	merge support.BCD003_clusterhistory_94 (in=a) clusterhistory (in=b);
 	by disease_code agegroup maxtemp rundate cluster;
 	if a;
 run;
@@ -919,7 +919,7 @@ quit;
 
 /* Select rows from clusterhistory file from past 7 days with events in common with today's most likely cluster */
 data clusterhistory_linelist;
-set support.clusterhistory_94;
+set support.BCD003_clusterhistory_94;
 	where disease_code = "&&disease_code&i" and
 		agegroup="&&agegroup&i" and
 		maxtemp=&&maxtemp&i and
@@ -990,7 +990,7 @@ proc sql;
 	create table NewIndividuals as
 	select lli.*
 	from linelistIndividuals as lli
-	left join support.satscanlinelist_94 as s
+	left join support.BCD003_satscanlinelist_94 as s
 	on lli.event_id=s.event_id and lli.disease_code=s.disease_code
 		and lli.agegroup=s.agegroup and lli.maxtemp=s.maxtemp
 	having s.event_id ='';
@@ -1008,8 +1008,8 @@ quit;
 %macro AddToList;
 %macro dummy; %mend dummy;
 proc sort data=NewIndividuals; by event_id disease_code agegroup maxtemp ;run;
-proc append base=support.SatScanLineList_94 data=NewIndividuals;run;
-proc sort data=support.SatScanLineList_94 out=support.SatScanLineList_94 nodupkey; by event_id disease_code agegroup maxtemp;run;
+proc append base=support.BCD003_SatScanLineList_94 data=NewIndividuals;run;
+proc sort data=support.BCD003_SatScanLineList_94 out=support.BCD003_SatScanLineList_94 nodupkey; by event_id disease_code agegroup maxtemp;run;
 %mend AddtoList;
 
 /* Macro to generate chloropleth map of significant clusters over NYC outline base map */
@@ -2461,7 +2461,7 @@ RUN;
 			a.RADIUS,
 			b.*
 		from OutColLatLong a left join outcol aa on a.cluster=aa.cluster
-			left join support.Kml_circle_tessellation b on a.cluster=b.cluster
+			left join support.BCD003_Kml_circle_tessellation b on a.cluster=b.cluster
 		where a.cluster=1;
 	quit;
 
@@ -2555,7 +2555,7 @@ RUN;
 		format xml $20000.;
 		xml="<ScreenOverlay>
 			<name>Legend: Case Status</name>
-			<Icon> <href>file:///&SUPPORTMAP.CaseandCTStatus_legend.png</href>
+			<Icon> <href>file:///&SUPPORTMAP.BCD003_CaseandCTStatus_legend.png</href>
 			</Icon>
 			<overlayXY x='1' y='1' xunits='fraction' yunits='fraction'/>
         	<screenXY x='1' y='1' xunits='fraction' yunits='fraction'/>
@@ -2571,7 +2571,7 @@ RUN;
 		format xml $20000.;
 		xml="<ScreenOverlay>
 			<name>Legend: Case Status</name>
-			<Icon> <href>file:///&SUPPORTMAP.CaseStatus_legend.png</href>
+			<Icon> <href>file:///&SUPPORTMAP.BCD003_CaseStatus_legend.png</href>
 			</Icon>
 			<overlayXY x='1' y='1' xunits='fraction' yunits='fraction'/>
         	<screenXY x='1' y='1' xunits='fraction' yunits='fraction'/>
@@ -2593,7 +2593,7 @@ RUN;
 					<colorMode>normal</colorMode>
 					<scale>0.8</scale>
 				<Icon>
-            		<href>file:///&SUPPORTMAP.donut.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_donut.png</href>
 				</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2604,7 +2604,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.donut.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_donut.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2615,7 +2615,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.donut.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_donut.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2626,7 +2626,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.square.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_square.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2637,7 +2637,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.square.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_square.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2648,7 +2648,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.square.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_square.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2659,7 +2659,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.triangle.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_triangle.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2670,7 +2670,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.triangle.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_triangle.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2681,7 +2681,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.triangle.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_triangle.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2702,7 +2702,7 @@ RUN;
 					<colorMode>normal</colorMode>
 					<scale>0.8</scale>
 				<Icon>
-            		<href>file:///&SUPPORTMAP.donut.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_donut.png</href>
 				</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2713,7 +2713,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.donut.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_donut.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2724,7 +2724,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.donut.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_donut.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2735,7 +2735,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.donut.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_donut.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2746,7 +2746,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.square.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_square.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2757,7 +2757,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.square.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_square.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2768,7 +2768,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.square.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_square.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2779,7 +2779,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.square.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_square.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2790,7 +2790,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.triangle.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_triangle.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2801,7 +2801,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.triangle.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_triangle.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2812,7 +2812,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.triangle.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_triangle.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2823,7 +2823,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.8</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.triangle.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_triangle.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2845,7 +2845,7 @@ RUN;
 	    	     <colorMode>normal</colorMode>
 				 <scale>0.45</scale>
 	        	<Icon>
-            		<href>file:///&SUPPORTMAP.flag.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_flag.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2856,7 +2856,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.45</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.flag.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_flag.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2867,7 +2867,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.45</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.flag.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_flag.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>
@@ -2878,7 +2878,7 @@ RUN;
          			<colorMode>normal</colorMode>
 		 			<scale>0.45</scale>
          		<Icon>
-            		<href>file:///&SUPPORTMAP.flag.png</href>
+            		<href>file:///&SUPPORTMAP.BCD003_flag.png</href>
          		</Icon>
       			</IconStyle>
 	  			<LabelStyle><scale>0</scale></LabelStyle>

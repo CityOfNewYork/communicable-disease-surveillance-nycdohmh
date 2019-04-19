@@ -3,17 +3,17 @@
 libname support "&SUPPORT.";
 
 title "SaTScan v.9.4";
-proc print data=support.Clusterhistory_94;
+proc print data=support.BCD003_Clusterhistory_94;
 	where rundate=today();
 run;
 
 /*Address cleaning*/
 title "Addresses with bubble-up problems, for cleaning in Maven";
-proc print data=support.not_merged;
+proc print data=support.BCD003_not_merged;
 run;
 
 title "Previously geocoded addresses for cleaning in Maven";
-proc print data=support.previously_geocoded;
+proc print data=support.BCD003_previously_geocoded;
 where new ne " ";
 run;
 

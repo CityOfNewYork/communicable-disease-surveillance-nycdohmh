@@ -1,7 +1,7 @@
 /********************************************************************************************/
-/*	PROGRAM NAME: SaTScan94Master.sas												*/
+/*	PROGRAM NAME: BCD003_SaTScan94Master.sas												*/
 /*	DATE CREATED: 2015																		*/
-/*	LAST UPDATED: 12/4/2018																	*/
+/*	LAST UPDATED: 3/22/2019																	*/
 /*	PROGRAMMERS: Eric Peterson																*/
 /*				 Deb Kapell																	*/
 /*		 PURPOSE: Call SaTScan 9.4 analysis and associated macros, send reviewer e-mails	*/
@@ -15,7 +15,7 @@
 %version;
 
 /* Set filepaths for output from batch runs of SaTScan */
-	/* SaTScan install folder */
+	/* SaTScan install folder and location of code */
 %LET SATSCAN		=...\SaTScan\;
 	/* Location of daily archive files and folders */
 %LET ARCHIVE		=...\SaTScan\archive\;
@@ -34,7 +34,7 @@ libname maven odbc database=XXXXXXXX owner=dbo;		/* Establish connection to dise
 libname support "&SUPPORT.";		/* Permanent SaTScan Datasets, coordinate files, shapefiles, etc. */
 
 /* SAS output window options */
-OPTIONS EMAILHOST="XXXXXXX" EMAILSYS=XXXX EMAILPORT=XX;
+OPTIONS EMAILHOST="app22csmtp" EMAILSYS=SMTP EMAILPORT=25;
 OPTIONS NOCENTER  nonumber  ls=140 ps=51 nodate;
 options symbolgen mlogic mprint minoperator source source2 orientation=landscape;
 
@@ -64,27 +64,27 @@ proc printto log="&ARCHIVE.logs\Satscan94_&today..txt"; run;
  
 /* backup clusterhistory and satscanlinelist datasets - run as needed */
 /*
-data support.clusterhistory_94_&today;
-set support.clusterhistory_94;
+data support.BCD003_clusterhistory_94_&today;
+set support.BCD003_clusterhistory_94;
 run;
 
-data support.satscanlinelist_94_&today;
-set support.satscanlinelist_94;
+data support.BCD003_satscanlinelist_94_&today;
+set support.BCD003_satscanlinelist_94;
 run;
 */
 
 /* Read in file with macros needed for the analysis */
-%include "&SATSCAN.Satscan94Macros.sas";
+%include "&SATSCAN.BCD003_Satscan94Macros_GitHub.sas";
 
 /* Run analysis code */
-%include "&SATSCAN.Satscan94Analysis.sas";
+%include "&SATSCAN.BCD003_Satscan94Analysis_GitHub.sas";
 
 /*After analyses have run, check for events added to satscan linelist today */
 proc sql; create table NewEvent as
 select distinct disease_code
 	,cluster, MaxTemp, agegroup, rundate,
 	count(*) as cases
-from support.satscanlinelist_94
+from support.BCD003_satscanlinelist_94
 where rundate=&todaynum
 group by disease_code, maxtemp, agegroup, rundate
 order by disease_code, MaxTemp, agegroup, rundate;
@@ -94,7 +94,7 @@ quit;
 proc sql; create table NewCluster as
 select distinct disease_code
 	,MaxTemp, agegroup, rundate, NumConfProbSuspPend, RECURR_INT, recurrence
-from support.clusterhistory_94
+from support.BCD003_clusterhistory_94
 where rundate=&todaynum
 order by disease_code, MaxTemp, agegroup, rundate;
 quit;
@@ -172,7 +172,7 @@ subject="SaTScan94: No new clusters today"
 emailsys=SMTP;
 data _null_;
 file mymail;
-put 'All quiet.'/
+put "All quiet."/
 	"FYI, the cluster history is here: &SUPPORT."/;
 run;
 quit;
@@ -192,7 +192,7 @@ select n.disease_code
 	,n.cases
 	,r.notes as reviewer	
 from NewEventCluster as n
-	,support.reviewers as r
+	,support.BCD003_reviewers as r
 where n.disease_code=r.code	
 order by reviewer;
 quit;

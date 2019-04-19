@@ -1,7 +1,7 @@
-/************************************************************************************************/
-/*	PROGRAM NAME: Satscan94Analysis									 					*/
+﻿/************************************************************************************************/
+/*	PROGRAM NAME: BCD003_Satscan94Analysis									 					*/
 /*	DATE CREATED: 2017																			*/
-/*	LAST UPDATED: 12/4/2018																		*/
+/*	LAST UPDATED: 3/22/2019																		*/
 /*	 PROGRAMMERS: Deborah Kapell                                         						*/
 /*                 Eric Peterson                                                				*/
 /*                  				                                                 			*/
@@ -11,11 +11,11 @@
 
 /* delete today's lines from archived datasets if this is rerun on the same day */
 proc sql;
-delete * from support.satscanlinelist_94
+delete * from support.BCD003_satscanlinelist_94
 where rundate=&todaynum;
 quit;
 proc sql;
-delete * from support.clusterhistory_94
+delete * from support.BCD003_clusterhistory_94
 where rundate=&todaynum;
 quit;
 
@@ -23,14 +23,14 @@ quit;
 proc sql;
 	select distinct quote(strip(disease_code))
 	into :satscan_diseases separated by ","
-	from support.diseaselist;
+	from support.BCD003_diseaselist;
 quit;
 
 /* Max value of baseline+lagtime gives cutoff for initial data pull */
 proc sql;
 	select max(baseline+(lagtime-1))
 	into :maxstudyperiod
-	from support.diseaselist;
+	from support.BCD003_diseaselist;
 quit;
 
 /*  Pull events of disease of interest from AOW events table, excluding:  			*/
@@ -261,7 +261,7 @@ quit;
 
 /* Import x/y coordinate file */
 PROC IMPORT OUT= WORK.NYcoord 
-            DATAFILE= "&SUPPORT.TractNYCoord.txt" 
+            DATAFILE= "&SUPPORT.BCD003_TractNYCoord.txt" 
             DBMS=TAB REPLACE;
      GETNAMES=NO;
      DATAROW=1; 
@@ -284,7 +284,7 @@ run;
 
 /* import lat/long coordinate file */
 PROC IMPORT OUT= WORK.NYlatlong 
-            DATAFILE= "&SUPPORT.LatLongCoord.txt" 
+            DATAFILE= "&SUPPORT.BCD003_LatLongCoord.txt" 
             DBMS=TAB REPLACE;
      GETNAMES=NO;
      DATAROW=1; 
@@ -330,7 +330,7 @@ proc sql;
 		,s.timeagg
 		,s.weeklytrends
 	from events as m
-		,support.diseaselist as s
+		,support.BCD003_diseaselist as s
 	where m.disease_code = s.disease_code
 	and event_date >=intnx('day',&todaynum,-((maxtemp-1)+lagtime)) and
 			event_date <=intnx('day',&todaynum,-lagtime)
@@ -470,9 +470,9 @@ run;
 
 /* Add previously geocoded events to archive dataset, value indicating homelessness or PO Boxes */
 /*	flagging for review if new */ 
-	proc sort data=support.previously_geocoded; by event_id; run;
+	proc sort data=support.BCD003_previously_geocoded; by event_id; run;
 	data previously_geocoded_new rest;
-	merge support.previously_geocoded (in=a) previously_geocoded (in=b);
+	merge support.BCD003_previously_geocoded (in=a) previously_geocoded (in=b);
 		by event_id;
 		if b;
 		if b and not a and
@@ -488,8 +488,8 @@ run;
 		else output rest;
 	run;
 
-	proc append base=support.previously_geocoded data=previously_geocoded_new;run;
-	proc sort data=support.previously_geocoded; by new; run;
+	proc append base=support.BCD003_previously_geocoded data=previously_geocoded_new;run;
+	proc sort data=support.BCD003_previously_geocoded; by new; run;
 
 
 /* Count number of events still in analysis dataset - if none skip to end of loop */
@@ -540,7 +540,7 @@ run;
 
 /* merge with coordinate file and see if any do not match */
 /* save the unmatched events to an archive file for QA */
-	proc import datafile = "&SUPPORT.LatLongCoord.txt" out = coord replace; getnames=no; datarow=1; run;
+	proc import datafile = "&SUPPORT.BCD003_LatLongCoord.txt" out = coord replace; getnames=no; datarow=1; run;
 	data coord;	set coord; censustract = input(var1,$15.); keep censustract; run;
 	proc sort data = coord; by censustract; run;
 	proc sort data = Satscan1; by censustract; run;
@@ -555,18 +555,18 @@ run;
 		keep event_id disease_code boro censustract event_date disease_status_final;
 	run;
 	proc sort data = discordant; by event_id; run;
-	proc sort data = support.not_merged; by event_id; run;
+	proc sort data = support.BCD003_not_merged; by event_id; run;
 /* erase the previous day's dataset on the first loop so that fixed records come off the list */
 	%if &i = 1 %then %do;
-	data support.not_merged;
-		merge discordant (in=a) support.not_merged;
+	data support.BCD003_not_merged;
+		merge discordant (in=a) support.BCD003_not_merged;
 		by event_id;
 		if a & disease_code ~= '';
 	run;
 	%end;
 	%if &i ~= 1 %then %do;
 	data support.not_merged;
-		merge discordant (in=a) support.not_merged;
+		merge discordant (in=a) support.BCD003_not_merged;
 		by event_id;
 		if disease_code ~= '';
 	run;

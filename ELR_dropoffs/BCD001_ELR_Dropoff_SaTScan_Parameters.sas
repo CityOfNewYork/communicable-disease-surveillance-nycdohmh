@@ -1,17 +1,16 @@
-﻿/***********************************************************************************************/
-/*	PROGRAM NAME: ELR_Dropoff_SaTScan_Parameters_GitHub.sas										                  */
-/*	CREATED: 2017																		                                            */
-/*	UPDATED: October 19, 2018																		                                */
-/*	PROGRAMMERS: Eric Peterson																                                	*/
-/*				       Erin Andrews																	                                  */
-/*	PURPOSE: Define SaTScan parameter settings for lab- disease- and test type-level analyses	  */
-/************************************************************************************************/
+/********************************************************************************************
+	PROGRAM NAME: BCD001_ELR_Dropoff_SaTScan_Parameters.sas									
+	CREATED: 2017																			
+	UPDATED: April 12, 2019																	
+	PROGRAMMERS: Eric Peterson																
+				 Erin Andrews																
+********************************************************************************************/
 
-/******** Macro with parameters for lab-level SaTScan analysis ********/
+/* Macro to set parameters for lab-level SaTScan analyses */
 %Macro ParamLab;
 "[Input]"
 /";												case data filename"
-/"CaseFile=&INPUT.\Lab_dropoff_case_&TODAY..txt"
+/"CaseFile=&ARCHIVE.\&today.\INPUT\Lab_dropoff_case_&TODAY..txt"
 /";												control data filename"
 /"ControlFile="
 /";												time precision (0=None, 1=Year, 2=Month, 3=Day, 4=Generic)"
@@ -23,7 +22,7 @@
 /";												population data filename"
 /"PopulationFile="
 /";												coordinate data filename"
-/"CoordinatesFile=&INPUT.\Lab_dropoff_coordinate_&TODAY..txt"
+/"CoordinatesFile=&ARCHIVE.\&today.\INPUT\Lab_dropoff_coordinate_&TODAY..txt"
 /";												use grid file? (y/n)"
 /"UseGridFile=n"
 /";												grid data filename"
@@ -50,7 +49,7 @@
 
 //"[Output]"
 /";analysis main results output filename"
-/"ResultsFile=&OUTPUT.\Lab_dropoff_output_&TODAY..txt"
+/"ResultsFile=" OUTFILENAME 
 /";												output Google Earth KML file (y/n)"
 /"OutputGoogleEarthKML=y"
 /";												output shapefiles (y/n)"
@@ -122,7 +121,7 @@
 /";												how max temporal size should be interpretted (0=Percentage, 1=Time)"
 /"MaxTemporalSizeInterpretation=1"
 /";												maximum temporal cluster size (<=90%)"
-/"MaxTemporalSize=14"
+/"MaxTemporalSize=&MAXTEMP"
 /";												include purely spatial clusters? (y/n)"
 /"IncludePurelySpatial=n"
 /";												temporal clusters evaluated (0=All, 1=Alive, 2=Flexible Window)"
@@ -259,7 +258,7 @@
 /";												number of most likely clusters to report in temporal graph (positive integer)"
 /"TemporalGraphMostMLC=1"
 /";												significant clusters p-value cutoff to report in temporal graph (0.000-1.000)"
-/"TemporalGraphSignificanceCutoff=0.003"
+/"TemporalGraphSignificanceCutoff=&pvalue"
 
 //"[Other Output]"
 /";												report critical values for .01 and .05? (y/n)"
@@ -295,15 +294,15 @@
 /";												log analysis run to history file? (y/n)"
 /"LogRunToHistoryFile=y"
 /";												analysis execution method  (0=Automatic, 1=Successively, 2=Centrically)"
-/"ExecutionType=0";
+/"ExecutionType=0"
 %Mend ParamLab;
 
 
-/******** Macro with parameters for disease-level SaTScan analyses ********/
+/* Macro to set parameters for disease-level SaTScan analyses */
 %Macro ParamDx;
 "[Input]"
 /";												case data filename"
-/"CaseFile=&INPUT.\Disease_dropoff_case_&&disease_code&i.._&TODAY..txt"
+/"CaseFile=&ARCHIVE.\&today.\INPUT\Disease_&casecoordfile._dropoff_case_&&disease_code&i.._&TODAY..txt"
 /";												control data filename"
 /"ControlFile="
 /";												time precision (0=None, 1=Year, 2=Month, 3=Day, 4=Generic)"
@@ -315,7 +314,7 @@
 /";												population data filename"
 /"PopulationFile="
 /";												coordinate data filename"
-/"CoordinatesFile=&INPUT.\Disease_dropoff_coordinate_&&disease_code&i.._&TODAY..txt"
+/"CoordinatesFile=&ARCHIVE.\&today.\INPUT\Disease_&casecoordfile._dropoff_coordinate_&&disease_code&i.._&TODAY..txt"
 /";												use grid file? (y/n)"
 /"UseGridFile=n"
 /";												grid data filename"
@@ -342,7 +341,7 @@
 
 //"[Output]"
 /";analysis main results output filename"
-/"ResultsFile=&OUTPUT.\Disease_dropoff_output_&&disease_code&i.._&TODAY..txt" 
+/"ResultsFile=" OUTFILENAME 
 /";												output Google Earth KML file (y/n)"
 /"OutputGoogleEarthKML=y"
 /";												output shapefiles (y/n)"
@@ -551,7 +550,7 @@
 /";												number of most likely clusters to report in temporal graph (positive integer)"
 /"TemporalGraphMostMLC=1"
 /";												significant clusters p-value cutoff to report in temporal graph (0.000-1.000)"
-/"TemporalGraphSignificanceCutoff=0.003"
+/"TemporalGraphSignificanceCutoff=&pvalue"
 
 //"[Other Output]"
 /";												report critical values for .01 and .05? (y/n)"
@@ -587,15 +586,14 @@
 /";												log analysis run to history file? (y/n)"
 /"LogRunToHistoryFile=y"
 /";												analysis execution method  (0=Automatic, 1=Successively, 2=Centrically)"
-/"ExecutionType=0";
+/"ExecutionType=0"
 %Mend ParamDx;
 
-
-/******** Macro with parameters for test type-level SaTScan analyses ********/
+/* Macro to set parameters for test type-level SaTScan analyses */
 %Macro ParamTestType;
 "[Input]"
 /";												case data filename"
-/"CaseFile=&INPUT.\Testtype_dropoff_case_&&test_code&i.._&TODAY..txt"
+/"CaseFile=&ARCHIVE.\&today.\INPUT\Testtype_&casecoordfile._dropoff_case_&&test_code&i.._&TODAY..txt"
 /";												control data filename"
 /"ControlFile="
 /";												time precision (0=None, 1=Year, 2=Month, 3=Day, 4=Generic)"
@@ -607,7 +605,7 @@
 /";												population data filename"
 /"PopulationFile="
 /";												coordinate data filename"
-/"CoordinatesFile=&INPUT.\Testtype_dropoff_coordinate_&&test_code&i.._&TODAY..txt"
+/"CoordinatesFile=&ARCHIVE.\&today.\INPUT\Testtype_&casecoordfile._dropoff_coordinate_&&test_code&i.._&TODAY..txt"
 /";												use grid file? (y/n)"
 /"UseGridFile=n"
 /";												grid data filename"
@@ -634,7 +632,7 @@
 
 //"[Output]"
 /";analysis main results output filename"
-/"ResultsFile=&OUTPUT.\Testtype_dropoff_output_&&test_code&i.._&TODAY..txt"
+/"ResultsFile=" OUTFILENAME 
 /";												output Google Earth KML file (y/n)"
 /"OutputGoogleEarthKML=y"
 /";												output shapefiles (y/n)"
@@ -843,7 +841,7 @@
 /";												number of most likely clusters to report in temporal graph (positive integer)"
 /"TemporalGraphMostMLC=1"
 /";												significant clusters p-value cutoff to report in temporal graph (0.000-1.000)"
-/"TemporalGraphSignificanceCutoff=0.003"
+/"TemporalGraphSignificanceCutoff=&pvalue"
 
 //"[Other Output]"
 /";												report critical values for .01 and .05? (y/n)"
@@ -879,5 +877,5 @@
 /";												log analysis run to history file? (y/n)"
 /"LogRunToHistoryFile=y"
 /";												analysis execution method  (0=Automatic, 1=Successively, 2=Centrically)"
-/"ExecutionType=0";
+/"ExecutionType=0"
 %Mend ParamTestType;
