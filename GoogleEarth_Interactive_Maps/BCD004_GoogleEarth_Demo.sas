@@ -2,7 +2,7 @@
 /*	PROGRAM NAME: BCD004_GoogleEarth_LEG_Demo.sas						*/
 /*	DATE CREATED: 2019									*/
 /*	LAST UPDATED: 5/24/2019									*/
-/*	PROGRAMMERS: Eric Peterson								*/
+/*	PROGRAMMERS: Eric Peterson & Rob Arciuolo						*/
 /*	PURPOSE: Create interactive Google Earth map of disease events and features of interest	*/
 /************************************************************************************************/
 
