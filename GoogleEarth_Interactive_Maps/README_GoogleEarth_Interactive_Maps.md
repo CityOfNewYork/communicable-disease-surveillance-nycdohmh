@@ -8,9 +8,9 @@
 
 ### `BCD004_coolingtowers_demo.sas7bdat` – “cooling tower” data for demo
 
-### `BCD004_LEGStatus_legend.png` – image files for screen overlay of case status legend onto google earth visualization
+### `BCD004_LEGStatus_legend.png` – image file for screen overlay of case status legend onto google earth visualization
 
-### `BCD004_CTStatus_legend.png` – image files for screen overlay of cooling tower inspection status legend onto google earth visualization
+### `BCD004_CTStatus_legend.png` – image file for screen overlay of cooling tower inspection status legend onto google earth visualization
 
 ### `BCD004_triangle/square/donut/flag.png` – icons used for points on google earth visualization
 
