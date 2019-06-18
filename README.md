@@ -9,3 +9,4 @@
 ### - [Detecting Drop-offs in Electronic Laboratory Reporting](https://github.com/CityOfNewYork/communicable-disease-surveillance-nycdohmh/tree/master/ELR_dropoffs) (BCD001)
 ### - [Identifying Areas at Greatest Risk for Recent Zika Virus Importation](https://github.com/CityOfNewYork/communicable-disease-surveillance-nycdohmh/tree/master/Recent_Importation) (BCD002)
 ### - [Detecting Spatiotemporal Disease Clusters](https://github.com/CityOfNewYork/communicable-disease-surveillance-nycdohmh/tree/master/Detecting_Spatiotemporal_Disease_Clusters) (BCD003)
+### - [Generating Interactive Maps of Communicable Disease Reports](https://github.com/CityOfNewYork/communicable-disease-surveillance-nycdohmh/tree/master/GoogleEarth_Interactive_Maps) (BCD004)
