@@ -38,7 +38,7 @@
 
 ### `BCD005_NYC_censustracts.sas7bdat` - sample coordinate file, with census tract ID and X/Y coordinates of NYC census tract centroids
 
-### `BCD005_Diseaselist.xlsx` – Excel table of modifiable analysis parameters. The analysis_print column acts as a unique identifier for each set of unique analysis parameters. The column is defined by the user must a) conform to SAS dataset naming conventions (only alphanumeric characters, no spaces), b) not exceed 20 characters, and c) not duplicate a value within a set of iterative analyses. In the example provided here we use a combination of analysis parameters that allow users to easily identify the parameter settings used for each set of output (e.g. where analysis_print=poisson_np_63_rr24: model type=poisson-based prospective space-time, spatial adjustment=non-parametric, study period=63 days, relative risk threshold=2.4)
+### `BCD005_Diseaselist.xlsx` – Excel table of modifiable analysis parameters. The analysis_print column acts as a unique identifier for each set of unique analysis parameters. The column is defined by the user and must a) conform to SAS dataset naming conventions (only alphanumeric characters, no spaces), b) not exceed 20 characters, and c) not duplicate a value within a set of iterative analyses. The example provided here combines values of a number of analysis parameters to allow users to easily identify the parameter settings used for each set of output (e.g. where analysis_print=poisson_np_63_rr24: model type=poisson-based prospective space-time, spatial adjustment=non-parametric, study period=63 days, relative risk threshold=2.4)
 
 ### `BCD005_nyct2010.shp/dbf/prj/shx` – NYC census tract-level shapefile (4 files)
 
