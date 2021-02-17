@@ -177,7 +177,7 @@ footnote1 font='Arial' height=1 "The denominator for demographic percentages is 
 %macro dummy; %mend dummy;
 
 proc sql noprint;
-select strip(put(row3,8.)) into :cluster_cases1-:cluster_cases&max_cluster.
+select strip(put(row2,8.)) into :cluster_cases1-:cluster_cases&max_cluster.
 from demo_summary_counts;
 quit;
 
