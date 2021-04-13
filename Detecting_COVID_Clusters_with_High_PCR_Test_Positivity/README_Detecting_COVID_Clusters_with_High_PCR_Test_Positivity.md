@@ -47,7 +47,7 @@
 
 ## General guidelines for adaptation
 
-### The prospective cluster detection method using SaTScan to identify areas of elevated percent positivity applied by NYC DOHMH to support COVID-19 response efforts is described in [this preprint](https://www.medrxiv.org/content/10.1101/2020.07.18.20156901v2), published on medRxiv in August 2020.
+### The prospective cluster detection method using SaTScan to identify areas of elevated percent positivity applied by NYC DOHMH to support COVID-19 response efforts is described in [this article](https://wwwnc.cdc.gov/eid/article/27/5/20-3583_article), published in Emerging Infectious Diseases in 2021.
 
 ### This code runs SaTScan in batch mode. [SaTScan](https://www.satscan.org) is freely downloadable. Depending on organizational IT security policies, execution of batch files might be restricted to users with administrator permissions or only allowed on specially configured workstations (e.g., via a secure virtual machine or on a workstation without an internet connection).
 
