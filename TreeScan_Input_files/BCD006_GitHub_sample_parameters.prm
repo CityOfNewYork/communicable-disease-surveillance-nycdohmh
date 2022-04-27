@@ -1,0 +1,194 @@
+[Analysis]
+;scan type (TREEONLY=0, TREETIME=1, TIMEONLY=2)
+scan-type=1
+;probability model type (POISSON=0, BERNOULLI_TREE=1, UNIFORM=2, Not-Applicable=3)
+probability-model=2
+;conditional type (UNCONDITIONAL=0, TOTALCASES=1, NODE=2, NODEANDTIME=3)
+conditional-type=3
+;self control design - unconditional Bernoulli only (y/n)
+self-control-design=n
+;case probability (integer/integer)
+event-probability=1/2
+
+[Input]
+;tree structure filename
+tree-filename=...\TreeScan_Input_Files\BCD006_GitHub_sample_tree_file.txt
+;source type (CSV=0)
+tree-filename-SourceType=0
+;source field map (comma separated list of integers)
+tree-filename-SourceFieldMap=1,2
+;csv source delimiter (leave empty for space or tab delimiter)
+tree-filename-SourceDelimiter=" "
+;csv source group character
+tree-filename-SourceGrouper="
+;csv source skip initial lines (i.e. meta data)
+tree-filename-SourceSkip=0
+;csv source first row column header
+tree-filename-SourceFirstRowHeader=n
+;count data filename
+count-filename=...\TreeScan_Input_Files\BCD006_GitHub_sample_count_file.txt
+;source type (CSV=0)
+count-filename-SourceType=0
+;source field map (comma separated list of integers)
+count-filename-SourceFieldMap=1,3,2
+;csv source delimiter (leave empty for space or tab delimiter)
+count-filename-SourceDelimiter=" "
+;csv source group character
+count-filename-SourceGrouper="
+;csv source skip initial lines (i.e. meta data)
+count-filename-SourceSkip=0
+;csv source first row column header
+count-filename-SourceFirstRowHeader=n
+;control data filename
+control-filename=
+;date precision type (NONE=0, GENERIC=1, YEAR=2, MONTH=3, DAY=4)
+date-precision=4
+;data time ranges: [integer,integer] or [yyyy/mm/dd,yyyy/mm/dd]
+data-time-range=[2022/01/01,2022/01/31]
+
+[Output]
+;results filename
+results-filename=...\TreeScan_Input_Files\BCD006_GitHub_sample_output.txt
+;create HTML results (y/n)
+results-html=y
+;create CSV results (y/n)
+results-csv=n
+
+[Advanced Input]
+;cuts filename
+cut-filename=
+;default cuts type (SIMPLE=0, PAIRS=1, TRIPLETS=2, ORDINAL=3, COMBINATORIAL=4)
+cut-type=0
+;minimum censor time (2 <= x)
+minimum-censor-time=50
+;minimum censor time percentage of study period (0 < x <= 100.0)
+min-censor-percentage=10
+;apply risk window restriction due to censoring - (y/n)
+risk-window-restriction-censor=n
+;risk window alternative censor denominator (integer)
+risk-window-alt-censor-denominator=2
+
+[Temporal Window]
+;maximum temporal size as percentage of data time range (0 < x <= 50.0)
+maximum-window-percentage=50
+;maximum temporal size as fixed time length (integer)
+maximum-window-fixed=7
+;maximum temporal size selection (PERCENTAGE_WINDOW=0, FIXED_LENGTH=1)
+maximum-window-type=1
+;minimum temporal size as fixed time length (integer)
+minimum-window-fixed=3
+;apply risk window restriction - (y/n)
+apply-risk-window-restriction=n
+;risk window percentage (0 < x <= 100.0)
+risk-window-percentage=20
+;prospective analysis (y/n)
+prospective-analysis=y
+;restrict temporal windows (y/n)
+restricted-window-range=n
+;start data time range: [integer,integer] or [yyyy/mm/dd,yyyy/mm/dd]
+window-start-range=[2022/01/01,2022/01/31]
+;end data time range: [integer,integer] or [yyyy/mm/dd,yyyy/mm/dd]
+window-end-range=[2022/01/01,2022/01/31]
+
+[Adjustments]
+;perform day of week adjustments (y/n)
+perform-day-of-week-adjustments=n
+;apply exclusion time ranges (y/n)
+apply-exclusion-data-ranges=n
+;exclusion time ranges (semi-colon separated list of ranges: [integer,integer];[integer,integer] or [yyyy/mm/dd,yyyy/mm/dd];[yyyy/mm/dd,yyyy/mm/dd])
+exclusion-data-ranges=
+
+[Inference]
+;number of simulation replications (0, 9, 999, n999)
+monte-carlo-replications=999999
+;restrict tree levels evaluated (y/n)
+restrict-tree-levels=n
+;tree levels excluded from evaluation (csv list of unsigned integers, root level is 1)
+excluded-tree-levels=1,2
+;randomization seed (integer)
+randomization-seed=12345678
+;generate randomization seed (y/n)
+random-randomization-seed=n
+;minimum number of cases in a node (integer)
+minimum-node-cases=2
+
+[Sequential Scan]
+;perform sequential scan - time-only scan (y/n)
+sequential-scan=n
+;sequential scan maximum cases for signal (integer)
+sequential-maximum-signal=200
+;sequential scan - minimum cases to signal (integer)
+sequential-minimum-signal=3
+;sequential scan filename
+sequential-filename=
+;sequential alpha overall
+sequential-alpha-overall=0.05
+;sequential alpha spending
+sequential-alpha-spending=0.01
+
+[Power Evaluations]
+;perform power evaluations (y/n)
+perform-power-evaluations=n
+;power evaluation type (0=Analysis And Power Evaluation Together, 1=Only Power Evaluation With Count File, 2=Only Power Evaluation With Defined Total Cases)
+power-evaluation-type=0
+;critical values type (0=Monte Carlo, 1=User Specified Values)
+critical-values-type=0
+;power evaluation critical value .05 (> 0)
+critical-value-05=0
+;power evaluation critical value .01 (> 0)
+critical-value-01=0
+;power evaluation critical value .001 (> 0)
+critical-value-001=0
+;total cases in power evaluation (integer)
+power-evaluation-totalcases=600
+;number of replications in power step (integer)
+power-evaluation-replications=1000
+;power evaluation alternative hypothesis filename
+alternative-hypothesis-filename=
+;power baseline probability (integer/integer)
+baseline-probability=1/2
+;power z value (0 < z <= 0.01)
+power-z=0.001
+
+[Miscellaneous Analysis]
+;frequency of prospective analyses type (0=Daily, 1=Weekly, 2=Monthy, 3=Quarterly, 4=Yearly)
+prospective-frequency-type=1
+;frequency of prospective (integer)
+prospective-frequency=1
+
+[Additional Output]
+;create LLR results (y/n)
+results-llr=n
+;report critical values (y/n)
+report-critical-values=n
+;report attributable risk (y/n)
+report-attributable-risk=n
+;number of exposed attributable risk is based upon (positive integer)
+attributable-risk-exposed=0
+;output temporal graph HTML file (y/n)
+output-temporal-graph-html=y
+;temporal graph cluster reporting type (0=Only most likely cluster, 1=X most likely clusters, 2=Only significant clusters)
+temporal-graph-type=1
+;number of most likely clusters to report in temporal graph (positive integer)
+temporal-graph-most-mlc=50
+;significant clusters p-value cutoff to report in temporal graph (0.000-1.000)
+temporal-graph-significance-cutoff=0.05
+
+[Power Simulations]
+;input simulation data (y/n)
+input-simulations=n
+;input simulation filename
+input-simulations-file=
+;output simulation data (y/n)
+output-simulations=n
+;output simulation filename
+output-simulations-file=
+
+[Run Options]
+;number of parallel processes to execute (0=All Processors, x=At Most X Processors)
+parallel-processes=0
+
+[System]
+;parameters version - do not modify
+parameters-version=2.0.0
+
