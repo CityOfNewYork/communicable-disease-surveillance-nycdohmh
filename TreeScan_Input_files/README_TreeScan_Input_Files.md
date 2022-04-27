@@ -18,7 +18,7 @@
 
 ## Summary
 
-### [TreeScan](treescan.org) is freely downloadable software that implements the tree-based scan statistic, a data mining method primarily used by FDA and academic scientists for drug and vaccine safety surveillance. To identify unexpected adverse reactions, this method scans, for example, a hierarchical tree of ICD-10 codes, looking for excess risk over any time range after drug or vaccine exposure of any potential adverse event and groups of related adverse events, while adjusting for multiple testing.
+### [TreeScan](http://www.treescan.org) is freely downloadable software that implements the tree-based scan statistic, a data mining method primarily used by FDA and academic scientists for drug and vaccine safety surveillance. To identify unexpected adverse reactions, this method scans, for example, a hierarchical tree of ICD-10 codes, looking for excess risk over any time range after drug or vaccine exposure of any potential adverse event and groups of related adverse events, while adjusting for multiple testing.
 
 ### NYC DOHMH Bureau of Communicable Disease (BCD) research scientists engaged the TreeScan software developers and fundraised to support TreeScan public release v.2.0.0, which added a prospective analysis option to facilitate scanning for emerging clusters in whole-genome sequencing (WGS) data.
 
