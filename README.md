@@ -11,3 +11,4 @@
 ### - [Detecting Spatiotemporal Disease Clusters](https://github.com/CityOfNewYork/communicable-disease-surveillance-nycdohmh/tree/master/Detecting_Spatiotemporal_Disease_Clusters) (BCD003)
 ### - [Generating Interactive Maps of Communicable Disease Reports](https://github.com/CityOfNewYork/communicable-disease-surveillance-nycdohmh/tree/master/GoogleEarth_Interactive_Maps) (BCD004)
 ### - [Detecting COVID Clusters with High PCR Test Positivity](https://github.com/CityOfNewYork/communicable-disease-surveillance-nycdohmh/tree/master/Detecting_COVID_Clusters_with_High_PCR_Test_Positivity) (BCD005)
+### - [Generating TreeScan Input Files](https://github.com/CityOfNewYork/communicable-disease-surveillance-nycdohmh/tree/master/TreeScan_Input_files) (BCD006)
