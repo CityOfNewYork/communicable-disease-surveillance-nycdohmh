@@ -607,7 +607,7 @@ run;
 		string='"'||"&SATSCAN.SaTScanBatch.exe"||'" "'||"&INPUT.param_&&disease_code&i..&&maxTemp&i.._&&agegroup&i.._&today..txt"||'"';
 		put string;
 	run;
-	/* Run series of macros from SaTScan_macro file to call satscan and produce output */
+	/* Run series of macros from SaTScan_macro file to call satscan and produce output - to remove output elements of code and just use to produce input files comment out lines 611-650 */
 		%callSatscan
 		%switch
 		%if &switch > 0 
