@@ -22,4 +22,4 @@
 
 ### NYC DOHMH Bureau of Communicable Disease (BCD) research scientists engaged the TreeScan software developers and fundraised to support TreeScan public release v.2.0.0, which added a prospective analysis option to facilitate scanning for emerging clusters in whole-genome sequencing (WGS) data.
 
-### BCD is currently using TreeScan prospectively to detect emerging SARS-CoV-2 variants and is preparing to launch weekly analyses of Salmonella WGS data.
+### BCD is currently using TreeScan prospectively to detect emerging SARS-CoV-2 variants and running weekly analyses of Salmonella WGS data to identify clusters in closely related allele codes.
