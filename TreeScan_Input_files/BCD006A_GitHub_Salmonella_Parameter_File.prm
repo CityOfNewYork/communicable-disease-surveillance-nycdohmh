@@ -64,11 +64,11 @@ risk-window-alt-censor-denominator=2
 ;maximum temporal size as percentage of data time range (0 < x <= 50.0)
 maximum-window-percentage=25
 ;maximum temporal size as fixed time length (integer)
-maximum-window-fixed=1
+maximum-window-fixed=90
 ;maximum temporal size selection (PERCENTAGE_WINDOW=0, FIXED_LENGTH=1)
-maximum-window-type=0
+maximum-window-type=1
 ;minimum temporal size as fixed time length (integer)
-minimum-window-fixed=2
+minimum-window-fixed=1
 ;apply risk window restriction - (y/n)
 apply-risk-window-restriction=n
 ;risk window percentage (0 < x <= 100.0)
@@ -144,7 +144,7 @@ power-z=0.001
 
 [Miscellaneous Analysis]
 ;frequency of prospective analyses type (0=Daily, 1=Weekly, 2=Monthy, 3=Quarterly, 4=Yearly)
-prospective-frequency-type=0
+prospective-frequency-type=1
 ;frequency of prospective (integer)
 prospective-frequency=1
 
