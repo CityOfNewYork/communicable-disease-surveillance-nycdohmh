@@ -1,14 +1,14 @@
-﻿*********************************************************;
+*********************************************************;
 * create and save count and tree input files for TreeScan; 
 *********************************************************;
 * 1. Format sample data and aggregate by lineage and date
 * 2. Export count file for TreeScan analysis
 * 3. Prepare and export tree file for TreeScan analysis
 *********************************************************;
-libname save "\\...\Input files for GitHub";
+libname save "\\...\Input files for GitHub"; run;
 
 data GitHub_sample_data;
-set save.BCD006_GitHub_sample_data;
+set save.BCD006_github_sample_data;
 run;
 
 /* Inspect data before generating input files - study period for sample data is Jan 1-31, 2022 */
@@ -33,7 +33,7 @@ run;
 
 /* export count dataset for treescan analysis */
 proc export data=GitHub_sample_count
-	outfile="\\...\Input files for GitHub\BCD006_GitHub_sample_count_file.txt" replace; putnames=no;
+	outfile="\\...\Input files for GitHub\GitHub_sample_count_file.txt" replace; putnames=no;
 run;
 
 /* Create Tree file for TreeScan */
@@ -46,11 +46,24 @@ proc sql;
 	order by parent;
 quit;
 
-/* Need to define relationships between branches/nodes if not indicated in lineage */
-/* e.g. in sample data, A is the parent of B, but that relationship is not encoded in the lineage values */
+/* Need to define relationships between branches/nodes if not obvious from lineage name */
+/* e.g. in sample data, A is the parent of B, or BJ.1 and BM.1.1.1 are parents of recombinant lineage XBB*/
+/* but those relationships requires hard coding */
+proc import 
+	datafile="\\...Input_files for Github\BCD006_GitHub_parent_child_crosswalk.txt" out=parent_child_crosswalk dbms=tab replace; 
+run;
+
+proc sql;
+	create table tree_with_crosswalk as
+	select distinct a.*, b.*
+	from all_lineages a
+		left join parent_child_crosswalk b
+		on a.parent=b.parent;
+quit;
 data tree;
-	set all_lineages;
-	/* A serves as base of tree so set parent to null */
+	set tree_with_crosswalk;
+	if recombinant = 0 then parent = parent_replace;
+	if recombinant = 1 & lineage = parent then parent = parent_replace;
 	if lineage = "A" then parent = "";
 	if lineage = "B" then parent = "A";
 run;
@@ -80,6 +93,18 @@ data unknown_parents;
 	if lineage = "A" then parent = "";
 	if lineage = "B" then parent = "A";
 run;
+proc sql;
+	create table unknown_parents_with_crosswalk as
+	select distinct a.*, b.*
+	from unknown_parents a
+		left join parent_child_crosswalk b
+		on a.parent=b.parent;
+quit;
+data filledin_parents;
+	set unknown_parents_with_crosswalk;
+	if recombinant = 0 then parent = parent_replace;
+	if recombinant = 1 & variant = parent then parent = parent_replace;
+run;
 
 /* Count number of rows in unknown parents dataset */
 %let dsid=%sysfunc(open(unknown_parents));
@@ -89,7 +114,7 @@ run;
 	%if &unknown_count^=0 %then %do;
 
 		data tree;
-			set tree unknown_parents;
+			set tree filledin_parents;
 		run;
 
 	%end;
@@ -101,11 +126,11 @@ run;
 %unknown_parents;
 
 /* Remove any duplicate parent-child node pairings */
-proc sort data=tree nodup; by lineage parent; run;
+proc sort data=tree nodup out=tree(drop=parent_replace recombinant variant); by lineage parent; run;
 
 /* export tree dataset for treescan analysis */
 proc export data=tree
-	outfile="\\...\Input files for GitHub\BCD006_GitHub_sample_tree_file.txt" replace; putnames=no;
+	outfile="\\...\Input files for GitHub\GitHub_sample_tree_file.txt" replace; putnames=no;
 run;
 
 /* save source dataset for tree */

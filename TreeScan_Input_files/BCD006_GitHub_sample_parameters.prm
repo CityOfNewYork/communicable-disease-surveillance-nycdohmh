@@ -9,6 +9,10 @@ conditional-type=3
 self-control-design=n
 ;case probability (integer/integer)
 event-probability=1/2
+;variable case probability - unconditional Bernoulli only (y/n)
+variable-case-probability=n
+;scan rate type (HIGHRATE=0, LOWRATE=1, HIGHORLOWRATE=2)
+scan-rate-type=0
 
 [Input]
 ;tree structure filename
@@ -53,12 +57,24 @@ results-filename=...\TreeScan_Input_Files\BCD006_GitHub_sample_output.txt
 results-html=y
 ;create CSV results (y/n)
 results-csv=n
+;create NCBI Asn results (y/n)
+results-asn=n
+;create Newick File (y/n)
+results-nwk=n
 
 [Advanced Input]
 ;cuts filename
 cut-filename=
 ;default cuts type (SIMPLE=0, PAIRS=1, TRIPLETS=2, ORDINAL=3, COMBINATORIAL=4)
 cut-type=0
+;allow data only on tree leaves - (y/n)
+data-only-on-leaves=n
+;ignore cases outside study period - (y/n)
+relaxed-study-data-period-checking=n
+;allow multi-parent nodes - (y/n)
+allow-multi-parent-nodes=y
+;allow multiple root nodes - (y/n)
+allow-multiple-roots=y
 ;minimum censor time (2 <= x)
 minimum-censor-time=50
 ;minimum censor time percentage of study period (0 < x <= 100.0)
@@ -105,12 +121,20 @@ monte-carlo-replications=999999
 restrict-tree-levels=n
 ;tree levels excluded from evaluation (csv list of unsigned integers, root level is 1)
 excluded-tree-levels=1,2
+;restrict tree nodes evaluated (y/n)
+restrict-evaluated-nodes=n
+;not evaluated tree nodes filename
+not-evaluated-nodes-file=
 ;randomization seed (integer)
 randomization-seed=12345678
 ;generate randomization seed (y/n)
 random-randomization-seed=n
 ;minimum number of cases in a node (integer)
 minimum-node-cases=2
+;p-value reporting type (STANDARD_PVALUE=0, TERMINATION_PVALUE)
+pvalue-report-type=0
+;early termination threshold (> 0)
+early-termination-threshold=50
 
 [Sequential Scan]
 ;perform sequential scan - time-only scan (y/n)
@@ -160,11 +184,13 @@ prospective-frequency=1
 ;create LLR results (y/n)
 results-llr=n
 ;report critical values (y/n)
-report-critical-values=n
+report-critical-values=y
 ;report attributable risk (y/n)
 report-attributable-risk=n
 ;number of exposed attributable risk is based upon (positive integer)
 attributable-risk-exposed=0
+;report parent cuts that match child cuts (y/n)
+include-identical-parent-cuts=n
 ;output temporal graph HTML file (y/n)
 output-temporal-graph-html=y
 ;temporal graph cluster reporting type (0=Only most likely cluster, 1=X most likely clusters, 2=Only significant clusters)
@@ -190,5 +216,5 @@ parallel-processes=0
 
 [System]
 ;parameters version - do not modify
-parameters-version=2.0.0
+parameters-version=2.3.0
 
